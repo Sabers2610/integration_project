@@ -1,0 +1,23 @@
+POST http://localhost:3001/1.0/register/
+content-type: application/json
+
+{
+    "rut": "18109416-8",
+    "name": "Giovannig",
+    "lastname": "Barra",
+    "age": 21,
+    "direction": "Pasaje las palmeras",
+    "email": "gio.barra@duocuc.cl",
+    "password": "12345678",
+    "esp": ""
+}
+
+###
+
+POST http://localhost:3001/1.0/login/
+content-type: application/json
+
+{
+    "email": "lu.saezd@duocuc.c",
+    "password": "261002"
+}
