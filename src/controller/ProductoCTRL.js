@@ -3,8 +3,8 @@ const TipoProducto = require("../models/TipoProducto.js")
 const Sucursal = require("../models/Sucursal.js")
 const DetalleProducto = require("../models/DetalleProducto.js")
 
-const {getConnection} = require("../DataBase.js")
-const {SQLError,FormatError} = require("../utils/Exceptions.js")
+const {getConnection} = require("../database.js")
+const {SQLError,FormatError} = require("../utils/exception.js")
 
 
 Producto.addProducto = async (request,response)=>{
