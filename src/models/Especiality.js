@@ -1,7 +1,7 @@
 class Especiality {
     constructor(id_especiality=0, name_especiality="", enabled=true){
-        this.id_especialty = id_especiality
-        this.name_especialty = name_especiality
+        this.id_especiality = id_especiality
+        this.name_especiality = name_especiality
         this.enabled = enabled
     }
 
