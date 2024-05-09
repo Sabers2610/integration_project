@@ -1,7 +1,8 @@
 const express = require("express")
 const app = express()
+const morgan = require("morgan")
 require("dotenv").config()
-
+app.use(morgan("tiny"))
 app.use(express.json())
 
 app.get("/", (request, response)=> {

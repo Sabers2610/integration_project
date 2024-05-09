@@ -13,3 +13,5 @@ class Categoria{
         return json
     }
 }
+
+module.exports = Categoria
