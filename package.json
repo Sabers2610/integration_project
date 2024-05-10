@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon src/index.js"
+    "dev": "nodemon src/index.js",
+    "dev-linux": "nodemon src/index_auth.js & nodemon src/api_pedido.js"
   },
   "author": "sabers",
   "license": "ISC",

@@ -3,11 +3,11 @@ require("dotenv").config()
 
 
 const connection = mysql.createPool(
-    `mysql://${process.env.USER}:${process.env.PASSWORD}@sql-first-integration-apitest.h.aivencloud.com:17527/integration_ferremax?ssl-mode=REQUIRED`
+    `mysql://${process.env.DB_USER}:${process.env.DB_PASSWORD}@sql-first-integration-apitest.h.aivencloud.com:17527/integration_ferremax?ssl-mode=REQUIRED`
 )
 
 async function getConnection() {
     return connection.getConnection()
 }
 
-module.exports = { getConnection}
+module.exports = { getConnection }
