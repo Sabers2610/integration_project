@@ -62,4 +62,9 @@ Producto.addPromo = async (request,response)=>{
             return response.status(500).json(error)
         }
     }
+    finally{
+        if(connection){
+            connection.release()
+        }
+    }
 }
