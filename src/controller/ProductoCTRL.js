@@ -9,24 +9,26 @@ const {SQLError,FormatError} = require("../utils/exception.js")
 
 
 Producto.addPromo = async (request,response)=>{
-    const {nombre_producto,precio,modelo,marca,id_tipo_producto, id_sucursal, stock} = request.body
+    const {nombre_producto,precio,modelo,marca,id_tipo_producto, id_sucursal, stock, descuento} = request.body
     var connection = null
     try{
         const categoria = new Categoria(1, "PROMOCIONES")
         const tipoproducto = new TipoProducto(id_tipo_producto, "", categoria)
         const sucursal = new Sucursal(id_sucursal)
         const detalleProducto = new DetalleProducto(sucursal, stock)
-        const producto = new Producto(detalleProducto,tipoproducto,id_producto,nombre_producto,precio,modelo,marca)
+        const producto = new Producto(detalleProducto,tipoproducto,nombre_producto,codigo,precio,modelo,marca, descuento)
         
         connection = await getConnection()
-        const sql = `INSERT INTO producto (nombre_producto, precio, modelo, marca, disponibilidad, id_tipo_producto) VALUES(?,?,?,?,?,?)`
+        const sql = `INSERT INTO producto (nombre_producto, codigo, precio, modelo, marca, disponibilidad, id_tipo_producto, descuento) VALUES(?,?,?,?,?,?,?,?)`
         const values =[
             producto.nombre_producto,
+            producto.codigo,
             producto.precio,
             producto.modelo,
             producto.marca,
             producto.disponibilidad,
             producto.tipo_producto.id_tipo_producto,
+            producto.descuento
         ]
 
         const [rows, fields] = await connection.query(sql, values)
@@ -57,6 +59,59 @@ Producto.addPromo = async (request,response)=>{
         }
         else if(error instanceof FormatError){
             return response.status(400).jsonn(error.FormatError())
+        }
+        else {
+            return response.status(500).json(error)
+        }
+    }
+    finally{
+        if(connection){
+            connection.release()
+        }
+    }
+}
+
+Producto.getAll = async (request,response)=>{
+    var connection = null
+    try{
+        connection = await getConnection()
+
+        const sql = `SELECT * FROM producto`
+
+        await connection.query(sql)
+
+        return response.status(201).json(Producto.getProducto())
+    }
+    catch(error){
+        if(error instanceof SQLErro){
+            return response.status(500).json(error.exceptionJson())
+        }
+        else {
+            return response.status(500).json(error)
+        }
+    }
+    finally{
+        if(connection){
+            connection.release()
+        }
+    }
+}
+
+Producto.getSpecific = async (request,response)=>{
+    const {id_producto} = request.body
+    var connection = null
+    try{
+        connection = await getConnection()
+        
+        const sql = `SELECT * FROM producto WHERE ${id_producto}`
+
+        await connection.query(sql)
+
+        return response.status(201).json(Producto.getProducto())
+    }
+    catch(error){
+        if(error instanceof SQLError){
+            return response.status(500).json(error.exceptionJson())
         }
         else {
             return response.status(500).json(error)

@@ -1,16 +1,17 @@
 const {FormatError} = require("../utils/Exceptions.js")
 
 class Producto {
-    constructor(detalle_producto, tipo_producto, id_producto=0, nombre_producto, precio=0,modelo='',marca='',disponibilidad=false){
+    constructor(detalle_producto, tipo_producto, id_producto=0, nombre_producto, codigo='', precio=0,modelo='',marca='',disponibilidad=false, descuento=0){
         this.id_producto=id_producto;
         this.setNombreProducto(nombre_producto)
+        this.codigo=codigo
         this.setPrecio(precio)
         this.modelo=modelo;
         this.marca=marca;
         this.tipo_producto=tipo_producto;
         this.detalle_producto=detalle_producto;
-
         this.disponibilidad=disponibilidad;
+        this.setDescuento(descuento)
     }
 
     setNombreProducto(nombre_producto){
@@ -31,6 +32,15 @@ class Producto {
         this.precio=precio;
     }
 
+    setDescuento(descuento){
+        if(!this.tipo_producto === 1){
+            this.descuento = 0
+        }
+        else if(descuento < 0){
+            throw new FormatError("Descuento no puede ser menor a 0" , "API_FORMAT_ERROR")
+        }
+    }
+
 
     getProducto(){
         const to_Json={
@@ -41,7 +51,8 @@ class Producto {
             "marca":this.marca,
             "disponibilidad":this.disponibilidad ? "Disponible" : "No disponible",
             "detalle_sucursal":this.detalle_producto.getDetalleProducto(),
-            "tipo_producto":this.tipo_producto.getTipo()
+            "tipo_producto":this.tipo_producto.getTipo(),
+            "descuento":this.descuento
         }
         return to_Json
     }
