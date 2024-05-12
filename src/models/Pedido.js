@@ -1,4 +1,4 @@
-const { FormatError } = require("../utils/exceptions.js")
+const { FormatError } = require("../utils/exception.js")
 
 class Pedido {
     constructor(id_pedido = 0, cliente = null, productos = null, estado = false, fecha, total) {

@@ -1,5 +1,5 @@
 const { Router } = require("express")
-const { getPedido, getPedidoId, } = require("../controller/pedidoController.js")
+const { getPedido, getPedidoId, postPedido } = require("../controller/pedidoController.js")
 
 const router = Router()
 
@@ -8,5 +8,8 @@ router.route("/pedidos/")
 
 router.route("/pedidos/:id")
 	.get(getPedidoId)
+
+router.route("/pedidos/")
+	.post(postPedido)
 
 module.exports = router
