@@ -72,9 +72,9 @@ Pedido.postPedido = async (request, response) => {
 	try {
 		connection = await getConnection()
 
-		const sqlPedido = `INSERT INTO pedido VALUES(0, NOW(), 0,?,?)`
+		// Insertamos solamente el rut ya que los otros valores se calculan con informacion del la base de datos
+		const sqlPedido = `INSERT INTO pedido VALUES(0, NOW(), 0,0,?)`
 		const valuesPedido = [
-			101, // TODO: Calcular el total del pedido con subconsulta
 			cliente.rut
 		]
 
@@ -82,6 +82,8 @@ Pedido.postPedido = async (request, response) => {
 
 		// La tabla pedido tiene un id auto incrementable con "insertId" se obtiene el valor del mismo
 		const id_pedido = rows.insertId
+
+		let totalPedido = 0;
 		// Inserts para tabla "detalle_pedido" por cada producto
 		for (const detalle of detalles) {
 			const { cantidad, sub_total, product } = detalle;
@@ -96,19 +98,33 @@ Pedido.postPedido = async (request, response) => {
 			);
 			const detallePedido = new DetallePedido(cantidad, sub_total, producto)
 
+			const sqlSubTotal = "SELECT precio FROM producto WHERE id_producto = ?"
+			const valuesSubTotal = [product.id_producto]
+
+			const [rowsSub, _fieldsSub] = await connection.query(sqlSubTotal, valuesSubTotal)
+
+			const valorProducto = rowsSub[0].precio
+
+
+			detallePedido.sub_total = valorProducto * detallePedido.cantidad
+			totalPedido += detallePedido.sub_total
+
 			const sqlDetalle = "INSERT INTO detalle_pedido VALUES(?,?,?,?)"
 			const valuesDetalle = [
 				detallePedido.cantidad,
-				detallePedido.sub_total, // TODO: Calcular sub_total con subconsulta
+				detallePedido.sub_total,
 				id_pedido,
 				detallePedido.producto.id_producto
 			]
 
 			const [rows, _fields] = await connection.query(sqlDetalle, valuesDetalle)
 
-			// TODO: Cambiar response con informacion del pedido
-			return response.status(200).json({ Message: "Exito al crear pedido" })
 		};
+		const sqlUpdateTotal = "UPDATE pedido SET total = ? WHERE id_pedido = ?"
+		const valuesUpdateTotal = [totalPedido, id_pedido]
+		await connection.query(sqlUpdateTotal, valuesUpdateTotal)
+		// TODO: Cambiar el mensaje con informacion relevante
+		return response.status(200).json({ Message: "Exito al crear pedido" })
 
 	} catch (error) {
 		if (!connection) response.status(500).json({
