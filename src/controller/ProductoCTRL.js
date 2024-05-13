@@ -73,17 +73,51 @@ Producto.addPromo = async (request,response)=>{
 
 Producto.getAll = async (request,response)=>{
     var connection = null
+    const productos = []
+    const sucursales = []
     try{
         connection = await getConnection()
 
-        const sql = `SELECT * FROM producto`
+        const sql = `SELECT id_producto, nombre_producto, codigo, precio, modelo, marca, disponibilidad, descuento, 
+                    tp.nombre_tipo_producto, tp.id_tipo_producto,
+                    cp.nombre_categoria, cp.id_categoria
+                    FROM producto as p JOIN tipo_producto as tp ON p.id_tipo_producto = tp.id_tipo_producto 
+                    JOIN categoria_producto as cp ON tp.id_categoria = cp.id_categoria
+                    ORDER BY id_categoria`
 
-        await connection.query(sql)
+        const [rows, fields] = await connection.query(sql)
 
-        return response.status(201).json(Producto.getProducto())
+        if (rows.lenght === 0){
+            throw new SQLError("No se enconraron productos", "API_SQL_ERROR")
+        }
+
+        rows.map( async (p) =>{
+            var categoria = new Categoria(p.id_categoria, p.nombre_categoria)
+            var tipoProducto = new TipoProducto(p.id_tipo_producto, p.nombre_tipo_producto, categoria)
+            var producto = new Producto(null, tipoProducto, p.id_producto, p.nombre_producto, p.codigo, p.precio, p.modelo, p.marca, p.disponibilidad, p.descuento)
+            
+            var sql2 = `SELECT stock, id_sucursal FROM detalle_producto WHERE id_producto = ? AND stock > 0`
+            var values = [producto.id_producto] 
+            const [rows2, fields2] = await connection.query(sql2, values)
+
+            if (rows2.lenght === 0){
+                throw new SQLError("No se encontraron sucursales con stock disponible", "API_SQL_ERROR")
+            }
+
+            rows2.map(s =>{
+                var sucursal = new Sucursal(s.id_sucursal)
+                var detalleProducto = new DetalleProducto(sucursal, s.stock)
+
+                sucursales.push(detalleProducto.getDetalleProducto())
+            })
+            producto.detalle_producto = sucursales
+            productos.push(producto.getProducto())
+        })
+
+        return response.status(201).json(productos)
     }
     catch(error){
-        if(error instanceof SQLErro){
+        if(error instanceof SQLError){
             return response.status(500).json(error.exceptionJson())
         }
         else {
@@ -98,14 +132,24 @@ Producto.getAll = async (request,response)=>{
 }
 
 Producto.getSpecific = async (request,response)=>{
-    const {id_producto} = request.body
+    const {id_producto} = request.params.id
     var connection = null
     try{
         connection = await getConnection()
         
         const sql = `SELECT * FROM producto WHERE ${id_producto}`
 
-        await connection.query(sql)
+        const [rows, fields] = await connection.query(sql)
+
+        if (rows.lenght !== 1){
+            throw new SQLError("hubo un error", "API_SQL_ERROR")
+        }
+
+        var pro = rows[0]
+
+        
+
+        const producto = new Producto()
 
         return response.status(201).json(Producto.getProducto())
     }

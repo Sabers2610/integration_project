@@ -33,7 +33,7 @@ class Producto {
     }
 
     setDescuento(descuento){
-        if(!this.tipo_producto === 1){
+        if(this.tipo_producto !== 1){
             this.descuento = 0
         }
         else if(descuento < 0){
@@ -46,11 +46,12 @@ class Producto {
         const to_Json={
             "id_producto":this.id_producto,
             "nombre_producto":this.nombre_producto,
+            "codigo":this.codigo,
             "precio":this.precio,
             "modelo":this.modelo,
             "marca":this.marca,
             "disponibilidad":this.disponibilidad ? "Disponible" : "No disponible",
-            "detalle_sucursal":this.detalle_producto.getDetalleProducto(),
+            "detalle_sucursal":this.detalle_producto,
             "tipo_producto":this.tipo_producto.getTipo(),
             "descuento":this.descuento
         }
