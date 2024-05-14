@@ -74,82 +74,83 @@ Producto.addPromo = async (request,response)=>{
 Producto.getAll = async (request,response)=>{
     var connection = null
     const productos = []
-    const sucursales = []
-    try{
-        connection = await getConnection()
+    try {
+        connection = getConnection()
+        const sql = `SELECT p.id_producto, 
+                        p.nombre_producto, 
+                        p.codigo, p.precio,
+                        p.modelo, p.marca
+                        tp.id_tipo_producto
+                        tp.nombre_tipo_producto,
+                        p.descuento
+                    FROM producto as p JOIN tipo_producto as tp ON p.id_tipo_producto = tp.id_tipo_producto
+                    WHERE p.disponibilidad = true`
+        const [rows, fields] = (await connection).query(sql)
 
-        const sql = `SELECT id_producto, nombre_producto, codigo, precio, modelo, marca, disponibilidad, descuento, 
-                    tp.nombre_tipo_producto, tp.id_tipo_producto,
-                    cp.nombre_categoria, cp.id_categoria
-                    FROM producto as p JOIN tipo_producto as tp ON p.id_tipo_producto = tp.id_tipo_producto 
-                    JOIN categoria_producto as cp ON tp.id_categoria = cp.id_categoria
-                    ORDER BY id_categoria`
-
-        const [rows, fields] = await connection.query(sql)
-
-        if (rows.lenght === 0){
-            throw new SQLError("No se enconraron productos", "API_SQL_ERROR")
-        }
-
-        rows.map( async (p) =>{
-            var categoria = new Categoria(p.id_categoria, p.nombre_categoria)
-            var tipoProducto = new TipoProducto(p.id_tipo_producto, p.nombre_tipo_producto, categoria)
-            var producto = new Producto(null, tipoProducto, p.id_producto, p.nombre_producto, p.codigo, p.precio, p.modelo, p.marca, p.disponibilidad, p.descuento)
-            
-            var sql2 = `SELECT stock, id_sucursal FROM detalle_producto WHERE id_producto = ? AND stock > 0`
-            var values = [producto.id_producto] 
-            const [rows2, fields2] = await connection.query(sql2, values)
-
-            if (rows2.lenght === 0){
-                throw new SQLError("No se encontraron sucursales con stock disponible", "API_SQL_ERROR")
-            }
-
-            rows2.map(s =>{
-                var sucursal = new Sucursal(s.id_sucursal)
-                var detalleProducto = new DetalleProducto(sucursal, s.stock)
-
-                sucursales.push(detalleProducto.getDetalleProducto())
-            })
-            producto.detalle_producto = sucursales
+        if(rows.lenght === 0) throw new SQLError("Hubo un error al consultar los productos", "API_SQL_ERROR")
+        
+        rows.map(p => {
+            var tipoProducto = new TipoProducto(p.id_tipo_producto, p.nombre_tipo_producto)
+            var producto = new Producto(null, tipoProducto, p.id_producto, p.nombre_producto, p.codigo, p.precio,
+                p.modelo,p.marca,p.disponibilidad,p.descuento
+            )
             productos.push(producto.getProducto())
         })
-
-        return response.status(201).json(productos)
-    }
-    catch(error){
-        if(error instanceof SQLError){
-            return response.status(500).json(error.exceptionJson())
-        }
-        else {
-            return response.status(500).json(error)
-        }
-    }
-    finally{
-        if(connection){
-            connection.release()
-        }
+        response.status(200).json(productos)
+    } catch (error) {
+        if(error instanceof SQLError) response.status(500).json(error.exceptionJson())
+        else if(error instanceof FormatError) response.status(401).json(error.exceptionJson())
+        else response.status(500).json(error)
+    } finally {
+        if(connection) (await connection).release()
     }
 }
 
 Producto.getSpecific = async (request,response)=>{
-    const {id_producto} = request.params.id
+    const id_producto = request.params.id
+    const detalles_producto = []
     var connection = null
     try{
         connection = await getConnection()
         
-        const sql = `SELECT * FROM producto WHERE ${id_producto}`
+        const sql = `SELECT p.id_producto, 
+                        p.nombre_producto, 
+                        p.codigo, p.precio,
+                        p.modelo, p.marca
+                        tp.id_tipo_producto
+                        tp.nombre_tipo_producto,
+                        p.descuento
+                    FROM producto as p JOIN tipo_producto as tp ON p.id_tipo_producto = tp.id_tipo_producto
+                    WHERE p.disponibilidad = true`
 
         const [rows, fields] = await connection.query(sql)
 
         if (rows.lenght !== 1){
-            throw new SQLError("hubo un error", "API_SQL_ERROR")
+            throw new SQLError(`hubo un error al encontrar el producto con ID:${id_producto} `, "API_SQL_ERROR")
         }
 
         var pro = rows[0]
+        const tipoProducto = new TipoProducto(pro.id_tipo_producto, pro.nombre_tipo_producto, null)
+        const producto = new Producto(null, tipoProducto,pro.id_producto, pro.nombre_producto, pro.codigo,
+            pro.precio,pro.modelo,pro.marcar,pro.disponibilidad,pro.descuento
+        )
 
-        
+        const sql2 = `SELECT dp.stock, 
+                            s.id_sucursal, 
+                            s.nombre_sucursal, 
+                            s.direccion_sucursal 
+                    FROM detalle_producto as dp JOIN sucursal as s ON s.id_sucursal = dp.id_sucursal
+                    WHERE id_producto = ?`
+        const values = [producto.id_producto]
+        const [rows2, fields2] = await connection.query(sql2, values)
 
-        const producto = new Producto()
+        if(rows2.length === 0) throw new SQLError(`Hubo un error al buscar el detalle del producto con ID: ${producto.id_producto}`, "API_SQL_ERROR")
+        rows2.map(dp =>{
+            var sucursal = new Sucursal(dp.id_sucursal, dp.nombre_sucursal, dp.direccion_sucursal)
+            var detalleProducto = new DetalleProducto(sucursal,dp.stock)
+            detalles_producto.push(detalleProducto.getDetalleProducto())
+        })
+        producto.detalle_producto = detalles_producto
 
         return response.status(201).json(Producto.getProducto())
     }

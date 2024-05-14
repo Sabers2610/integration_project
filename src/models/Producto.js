@@ -1,7 +1,7 @@
 const {FormatError} = require("../utils/Exceptions.js")
 
 class Producto {
-    constructor(detalle_producto, tipo_producto, id_producto=0, nombre_producto, codigo='', precio=0,modelo='',marca='',disponibilidad=false, descuento=0){
+    constructor(detalle_producto=null, tipo_producto=null, id_producto=0, nombre_producto, codigo='', precio=0,modelo='',marca='',disponibilidad=false, descuento=0){
         this.id_producto=id_producto;
         this.setNombreProducto(nombre_producto)
         this.codigo=codigo
@@ -33,12 +33,13 @@ class Producto {
     }
 
     setDescuento(descuento){
-        if(this.tipo_producto !== 1){
-            this.descuento = 0
+        if(descuento < 0 && descuento > 99){
+            throw new FormatError("Descuento ingresado erroneo", "API_FORMAT_ERROR")
         }
-        else if(descuento < 0){
-            throw new FormatError("Descuento no puede ser menor a 0" , "API_FORMAT_ERROR")
+        else if(this.tipo_producto.id_tipo_producto !== 1){
+            throw new FormatError("No puede setear descuento a un producto que no este en promocion", "SQL_FORMAT_ERROR")
         }
+        else this.descuento = descuento
     }
 
 
@@ -53,7 +54,7 @@ class Producto {
             "disponibilidad":this.disponibilidad ? "Disponible" : "No disponible",
             "detalle_sucursal":this.detalle_producto,
             "tipo_producto":this.tipo_producto.getTipo(),
-            "descuento":this.descuento
+            "descuento":this.descuento === 0 ? "N/A" : `${this.descuento}%`
         }
         return to_Json
     }
