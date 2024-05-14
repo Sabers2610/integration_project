@@ -1,4 +1,4 @@
-const {FormatError} = require("../utils/Exceptions.js")
+const { FormatError } = require("../utils/exception.js")
 
 class Producto {
     constructor(detalle_producto=null, tipo_producto=null, id_producto=0, nombre_producto, codigo='', precio=0,modelo='',marca='',disponibilidad=false, descuento=0){
@@ -14,22 +14,22 @@ class Producto {
         this.setDescuento(descuento)
     }
 
-    setNombreProducto(nombre_producto){
+    setNombreProducto(nombre_producto) {
         var regex = /^[a-zA-Z]+$/;
-        if(nombre_producto === "" || !regex.test(nombre_producto) ){
+        if (nombre_producto === "" || !regex.test(nombre_producto)) {
             throw new FormatError("Nombre producto invalido", "API_FORMAT_ERROR")
         }
 
-        this.nombre_producto=nombre_producto
+        this.nombre_producto = nombre_producto
     }
 
-    setPrecio(precio){
+    setPrecio(precio) {
 
-        if(precio < 0 || precio > 999999999 || typeof precio !== "number"){
+        if (precio < 0 || precio > 999999999 || typeof precio !== "number") {
             throw new FormatError("Precio producto invalido", "API_FORMAT_ERROR")
         }
 
-        this.precio=precio;
+        this.precio = precio;
     }
 
     setDescuento(descuento){
@@ -41,7 +41,6 @@ class Producto {
         }
         else this.descuento = descuento
     }
-
 
     getProducto(){
         const to_Json={
@@ -60,4 +59,4 @@ class Producto {
     }
 }
 
-module.exports = Producto;
+module.exports = { Producto };
