@@ -21,3 +21,21 @@ content-type: application/json
     "email": "lu.saezd@duocuc.c",
     "password": "261002"
 }
+
+###
+
+GET http://localhost:3003/1.0/productos/categorias/1
+content-type: application/json
+
+{
+    "id_categoria":1
+}
+
+###
+
+GET http://localhost:3003/1.0/productos/marca/1
+content-type: application/json
+
+{
+    "id_marca":1
+}

@@ -12,11 +12,12 @@ class DetalleProducto{
         }
         this.stock = stock
     }
-    getDetalleProducto(){
+    toJson(){
 
         const to_Json={
             "stock":this.stock,
-            "sucursal":this.sucursal.getSucursal(),
+            "id_sucursal":this.sucursal.id_sucursal,
+            "nombre_sucursal": this.sucursal.nombre_sucursal
         }
         return to_Json;
     }

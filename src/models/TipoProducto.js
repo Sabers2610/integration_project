@@ -7,10 +7,10 @@ class TipoProducto{
     }
     toJson(){
         const json = {
+            "Categoria": this.categoria ? this.categoria.toJson() : "N/A",
             "id_tipoProducto": this.id_tipoProducto,
             "nombre_tipoProducto": this.nombre_tipoProducto,
             "habilitada": this.habilitada ? "Habilitada" : "Deshabilitada",
-            "Categoria": this.categoria ? this.categoria.toJson() : "No posee"
         }
         return json
     }

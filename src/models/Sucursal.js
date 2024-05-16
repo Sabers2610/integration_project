@@ -5,7 +5,7 @@ class Sucursal {
       this.direccion = direccion;
     }
 
-    getSucursal(){
+    toJson(){
       const to_Json={
         "id_sucursal":this.id_sucursal,
         "nombre":this.nombre,
