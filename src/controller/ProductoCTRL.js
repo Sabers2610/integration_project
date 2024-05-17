@@ -224,5 +224,53 @@ Producto.findOne = async (request, response) => {
     }
 }
 
+Producto.modify = async (request, response) => {
+    const datos = request.body;
+    const id = request.params.id;
+    let connection = null;
+    try {
+        connection = await getConnection();
+
+        if(datos.estado !== 3){
+            var query = `SELECT descuento, precio FROM producto WHERE id_producto = ?`
+            var values = [id]
+            var [rows, field] = await connection.query(query, values)
+            if(rows.length === 0) throw new SQLError(`No se pudo encontrar un producto con el ID: ${id}`, "API_SQL_ERROR")
+
+            if(rows[0].descuento > 0){
+                var precio_normal = ((rows.precio * 100)/rows.descuento)
+                query = `UPDATE producto SET
+                            id_categoria = ? , id_estado = 1 , precio = ? , decuento = 0
+                            WHERE id_producto=?`
+                values = [datos.id_categoria, precio_normal, id]
+                [rows, field] = await connection.query(query, values)
+                if(rows.affectedRows === 0){
+                    throw new SQLError(`No se pudo modificar el producto`, "API_SQL_ERROR")
+                }
+            }
+        } else if(datos.estado === 3){
+            const producto = new Producto(descuento=datos.descuento)
+            query = `UPDATE producto SET
+                    id_categoria = null , id_estado = 3 , precio = precio * ? , decuento = ?
+                    WHERE id_producto=?`
+            values = [datos.descuento/100 , datos.descuento, id]
+            [rows, field] = await connection.query(query, values)
+            if(rows.length === 0) throw new SQLError(`No se pudo encontrar un producto con el ID: ${id}`, "API_SQL_ERROR")
+
+        } else{
+            return response.status(401).json({'message': 'Estado invalido'})
+        }
+        return response.status(200).json({'message': 'Producto cambiado correctamente'})
+
+    } catch (error) {
+        console.log(error)
+        if(error instanceof SQLError) response.status(500).json(error.exceptionJson())
+        else response.status(500).json(error)
+    } finally {
+        if(connection) connection.release()
+    }
+};
+
 
 module.exports = Producto
+
