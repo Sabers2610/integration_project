@@ -1,7 +1,7 @@
 class Sucursal {
-    constructor(id_sucursal=0, nombre = '', direccion = '') {
+    constructor(id_sucursal=0, nombre_sucursal = '', direccion = '') {
       this.id_sucursal = id_sucursal;
-      this.nombre = nombre;
+      this.nombre_sucursal = nombre_sucursal;
       this.direccion = direccion;
     }
 

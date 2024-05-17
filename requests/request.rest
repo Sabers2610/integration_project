@@ -25,17 +25,17 @@ content-type: application/json
 ###
 
 GET http://localhost:3003/1.0/productos/categorias/1
-content-type: application/json
 
-{
-    "id_categoria":1
-}
 
 ###
 
-GET http://localhost:3003/1.0/productos/marca/1
+GET http://localhost:3003/1.0/productos/marca/2
+
+
+###
+POST http://localhost:3003/1.0/productos/6
 content-type: application/json
 
 {
-    "id_marca":1
+    "id_sucursal": 2
 }
