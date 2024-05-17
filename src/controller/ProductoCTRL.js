@@ -7,8 +7,8 @@ const Marca = require("../models/Marca.js")
 const Modelo = require("../models/Modelo.js")
 const Estado = require("../models/Estado.js")
 
-const {getConnection} = require("../database.js")
-const {SQLError,FormatError} = require("../utils/exception.js")
+const { getConnection } = require("../database.js")
+const { SQLError, FormatError } = require("../utils/exception.js")
 
 // URL: /1.0/productos/categorias/:id
 Producto.allCategory = async (request, response) => {
@@ -37,7 +37,7 @@ Producto.allCategory = async (request, response) => {
                     WHERE c.id_categoria = ? AND p.disponibilidad = true`
         const values = [id_categoria]
         const [rows, fields] = await connection.query(sql, values)
-        if(rows.length === 0) {
+        if (rows.length === 0) {
             throw new SQLError("Hubo un error al ejecutar la peticion", "API_SQL_ERROR")
         }
         rows.map(f => {
@@ -56,11 +56,11 @@ Producto.allCategory = async (request, response) => {
         response.status(200).json(productos)
     } catch (error) {
         console.log(error)
-        if(error instanceof SQLError) response.status(500).json(error.exceptionJson())
+        if (error instanceof SQLError) response.status(500).json(error.exceptionJson())
         else response.status(500).json(error)
 
     } finally {
-        if(connection) connection.release()
+        if (connection) connection.release()
     }
 }
 
@@ -86,15 +86,15 @@ Producto.allBrand = async (request, response) => {
                         WHERE m.id_marca = ? AND p.disponibilidad = true`
         const values = [id_marca]
         const [rows, fields] = await connection.query(query, values)
-        
-        if(rows.length === 0) throw new SQLError("Hubo un error al buscar los productos de la marca", "API_SQL_ERROR")
-        
+
+        if (rows.length === 0) throw new SQLError("Hubo un error al buscar los productos de la marca", "API_SQL_ERROR")
+
         rows.map(f => {
             var modelo = new Modelo(f.id_modelo, f.nombre_modelo, null)
             var tipo_producto = new TipoProducto(f.id_tipo_producto, f.nombre_tipo_producto)
             var estado = new Estado(f.id_estado, f.nombre_estado)
             var producto = new Producto(null, tipo_producto, null, estado, f.id_producto, f.nombre_producto, f.precio,
-                modelo,f.disponibilidad, f.descuento
+                modelo, f.disponibilidad, f.descuento
             )
             console.log(producto.tipo_producto.toJson())
             console.log("ANTES DEL ARRAY")
@@ -103,11 +103,11 @@ Producto.allBrand = async (request, response) => {
         response.status(200).json(productos)
     } catch (error) {
         console.log(error)
-        if(error instanceof SQLError) response.status(500).json(error.exceptionJson())
+        if (error instanceof SQLError) response.status(500).json(error.exceptionJson())
         else response.status(500).json(error)
 
     } finally {
-        if(connection) connection.release()
+        if (connection) connection.release()
     }
 }
 
@@ -117,7 +117,7 @@ Producto.findStock = async (request, response) => {
     var connection = null
     try {
         connection = await getConnection()
-        const query = ` SELECT m.id_marca, m.nombre_marca
+        const query = ` SELECT m.id_marca, m.nombre_marca,
                             m2.id_modelo, m2.nombre_modelo,
                             p.nombre_producto,
                             p.precio,
@@ -132,14 +132,14 @@ Producto.findStock = async (request, response) => {
                         WHERE p.id_producto = ?`
         const values = [id_producto]
         const [rows, field] = await connection.query(query, values)
-        if(rows.length === 0) throw new SQLError(`No se pudo encontrar un producto con el ID: ${id_producto}`, "API_SQL_ERROR")
-        
+        if (rows.length === 0) throw new SQLError(`No se pudo encontrar un producto con el ID: ${id_producto}`, "API_SQL_ERROR")
+
         const pro = rows[0]
         var tipo_producto = new TipoProducto(pro.id_tipo_producto, pro.nombre_tipo_producto)
         var estado = new Estado(pro.id_estado, pro.nombre_estado)
         var marca = new Marca(pro.id_marca, pro.nombre_marca)
         var modelo = new Modelo(pro.id_modelo, pro.nombre_modelo, marca)
-        var producto = new Producto(null, tipo_producto, null, estado,  id_producto, pro.nombre_producto, pro.precio, modelo, pro.disponibilidad,
+        var producto = new Producto(null, tipo_producto, null, estado, id_producto, pro.nombre_producto, pro.precio, modelo, pro.disponibilidad,
             pro.descuento
         )
 
@@ -148,8 +148,8 @@ Producto.findStock = async (request, response) => {
                         WHERE id_producto = ?`
         const values2 = [id_producto]
         const [rows2, field2] = await connection.query(query2, values2)
-        if(rows.length === 0) throw new SQLError(`Hubo un problema el stock de sucursal del producto asociado al ID: ${id_producto}`, "API_SQL_ERROR")
-        
+        if (rows2.length === 0) throw new SQLError(`Hubo un problema el stock de sucursal del producto asociado al ID: ${id_producto}`, "API_SQL_ERROR")
+
         rows2.map(d => {
             var sucursal = new Sucursal(d.id_sucursal, d.nombre_sucursal)
             var detalle_producto = new DetalleProducto(sucursal, d.stock)
@@ -158,19 +158,19 @@ Producto.findStock = async (request, response) => {
         producto.detalle_producto = detalles
 
         response.status(200).json(producto.toJson())
-    } catch (error){
+    } catch (error) {
         console.log(error)
-        if(error instanceof SQLError) response.status(500).json(error.exceptionJson())
+        if (error instanceof SQLError) response.status(500).json(error.exceptionJson())
         else response.status(500).json(error)
 
     } finally {
-        if(connection) connection.release()
+        if (connection) connection.release()
     }
 }
 
 Producto.findOne = async (request, response) => {
     const id_producto = request.params.id
-    const {id_sucursal} = request.body
+    const { id_sucursal } = request.body
     const detalles = []
     var connection = null
     try {
@@ -190,14 +190,14 @@ Producto.findOne = async (request, response) => {
                         WHERE p.id_producto = ?`
         const values = [id_producto, id_sucursal]
         const [rows, field] = await connection.query(query, values)
-        if(rows.length === 0) throw new SQLError(`No se pudo encontrar un producto con el ID: ${id_producto}`, "API_SQL_ERROR")
-        
+        if (rows.length === 0) throw new SQLError(`No se pudo encontrar un producto con el ID: ${id_producto}`, "API_SQL_ERROR")
+
         const pro = rows[0]
         var tipo_producto = new TipoProducto(pro.id_tipo_producto, pro.nombre_tipo_producto)
         var estado = new Estado(pro.id_estado, pro.nombre_estado)
         var marca = new Marca(pro.id_marca, pro.nombre_marca)
         var modelo = new Modelo(pro.id_modelo, pro.nombre_modelo, marca)
-        var producto = new Producto(null, tipo_producto, null,  estado, id_producto, pro.nombre_producto, pro.precio, modelo, pro.disponibilidad,
+        var producto = new Producto(null, tipo_producto, null, estado, id_producto, pro.nombre_producto, pro.precio, modelo, pro.disponibilidad,
             pro.descuento
         )
 
@@ -206,21 +206,21 @@ Producto.findOne = async (request, response) => {
                         WHERE id_producto = ? AND s.id_sucursal = ?`
         const values2 = [id_producto, id_sucursal]
         const [rows2, field2] = await connection.query(query2, values2)
-        if(rows2.length === 0) throw new SQLError(`Hubo un problema el stock de sucursal del producto asociado al ID: ${id_producto}`, "API_SQL_ERROR")
-        
+        if (rows2.length === 0) throw new SQLError(`Hubo un problema el stock de sucursal del producto asociado al ID: ${id_producto}`, "API_SQL_ERROR")
+
         const suc = rows2[0]
         const sucursal = new Sucursal(suc.id_sucursal, suc.nombre_sucursal)
         const detalle_producto = new DetalleProducto(sucursal, suc.stock)
         detalles.push(detalle_producto.toJson())
         producto.detalle_producto = detalles
         response.status(200).json(producto.toJson())
-    } catch (error){
+    } catch (error) {
         console.log(error)
-        if(error instanceof SQLError) response.status(500).json(error.exceptionJson())
+        if (error instanceof SQLError) response.status(500).json(error.exceptionJson())
         else response.status(500).json(error)
 
     } finally {
-        if(connection) connection.release()
+        if (connection) connection.release()
     }
 }
 

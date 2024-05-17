@@ -1,10 +1,12 @@
 const { FormatError } = require("../utils/exception.js")
 
 class DetallePedido {
-    constructor(cantidad = 0, sub_total = 0, producto) {
+    constructor(cantidad = 0, sub_total = 0, producto, sucursal) {
         this.setCantidad(cantidad)
         this.setSubTotal(sub_total)
         this.producto = producto // Clase producto
+        // TODO:Consultar este campo con los demas
+        this.sucursal = sucursal
     }
 
     // TODO: Revisar validaciones
