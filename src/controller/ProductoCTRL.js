@@ -202,5 +202,8 @@ Producto.findOne = async (request, response) => {
     }
 }
 
+Producto.modify = async (request, response)=>{
+    
+}
 
 module.exports = Producto
