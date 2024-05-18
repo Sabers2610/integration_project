@@ -66,16 +66,43 @@ Pedido.getPedidoId = async (request, response) => {
 }
 
 Pedido.postPedido = async (request, response) => {
-	// TODO: Revisar logica de como se va enviar los productos para insert
+	// TODO: Verificar si es el mismo cliente quien esta haciendo el pedido
 	const { cliente, detalles } = request.body
-	var connection = null;
+	//Token para verificar que el pedido lo esta realizando el mismo cliente
+	// TODO: Modificar JWT para que entrege el rut
+	const rut_jwt = request.user.user.email
 
+	//if (cliente.rut !== rut_jwt) {
+	//	return response.status(403).json({ message: 'El RUT del cliente no coincide con el RUT del token' });
+	//}
+
+	if (!cliente || typeof cliente.rut !== 'string') {
+		return response.status(400).json({ message: 'Cliente y RUT del cliente son requeridos y el RUT debe ser una cadena.' });
+	}
+
+	if (!Array.isArray(detalles) || detalles.length === 0) {
+		return response.status(400).json({ message: 'Detalles es requerido y debe ser un array con al menos un elemento.' });
+	}
+
+	for (const detalle of detalles) {
+		if (typeof detalle.cantidad !== 'number' || detalle.cantidad <= 0) {
+			return response.status(400).json({ message: 'Cada detalle debe tener una cantidad positiva.' });
+		}
+		if (!detalle.product || typeof detalle.product.id_producto !== 'number') {
+			return response.status(400).json({ message: 'Cada detalle debe tener un producto con id_producto (número)' });
+		}
+		if (typeof detalle.sucursal !== 'number') {
+			return response.status(400).json({ message: 'Cada detalle debe tener una sucursal con un id de tipo número.' });
+		}
+	}
+
+	let connection = null
 	try {
-		connection = await getConnection()
+		connection = await getConnection();
+		await connection.beginTransaction();
 
 		// Comprobar stock
 		for (const detalle of detalles) {
-			console.log(detalle)
 			const id_producto = detalle.product.id_producto
 			const url = `http://localhost:3003/1.0/productos/${id_producto}/stock`
 
@@ -111,7 +138,6 @@ Pedido.postPedido = async (request, response) => {
 		let totalPedido = 0;
 		// Inserts para tabla "detalle_pedido" por cada producto
 		for (const detalle of detalles) {
-			console.log(detalle)
 			const { cantidad, product, sucursal } = detalle;
 			const producto = new Producto(
 				null,
@@ -128,10 +154,8 @@ Pedido.postPedido = async (request, response) => {
 			const detallePedido = new DetallePedido(cantidad, 0, producto, sucursal)
 
 			// TODO: Que hacer en el caso de id_estado = 2
-			const sqlSubTotal = `SELECT CASE
-						WHEN p.id_estado = 1 THEN p.precio 
-						WHEN p.id_estado = 3 THEN p.precio * (1 - (p.descuento/100)) 
-						ELSE p.precio END AS precio 
+			// TODO: Revisar como trabajar el precio
+			const sqlSubTotal = `SELECT p.precio
 					FROM producto p 
 					WHERE id_producto = ?`
 			const valuesSubTotal = [product.id_producto]
@@ -139,7 +163,6 @@ Pedido.postPedido = async (request, response) => {
 			const [rowsSub, _fieldsSub] = await connection.query(sqlSubTotal, valuesSubTotal)
 
 			const valorProducto = rowsSub[0].precio
-
 
 			detallePedido.sub_total = valorProducto * detallePedido.cantidad
 			totalPedido += detallePedido.sub_total
@@ -162,22 +185,23 @@ Pedido.postPedido = async (request, response) => {
 				SET stock = stock - ?
 				WHERE id_producto = ? AND id_sucursal = ?`
 			const valuesStock = [cantidad, product.id_producto, sucursal]
-			console.log(valuesStock)
 			const [rowsStock, _fieldsStock] = await connection.query(sqlStock, valuesStock)
-			// TODO: Tratar bien el update
-			if (rowsStock.affectedRows > 0) {
-				console.log("Update correcto")
-			} else {
-				console.log("Update incorrecto")
+			if (rowsStock.affectedRows === 0) {
+				throw new Error(`Error al actualizar stock para producto ${product.id_producto} en la sucursal ${sucursal}`)
 			}
 		};
 		const sqlUpdateTotal = "UPDATE pedido SET total = ? WHERE id_pedido = ?"
 		const valuesUpdateTotal = [totalPedido, id_pedido]
 		await connection.query(sqlUpdateTotal, valuesUpdateTotal)
+
+		await connection.commit();
 		// TODO: Cambiar el mensaje con informacion relevante
 		return response.status(200).json({ Message: "Exito al crear pedido" })
 
 	} catch (error) {
+		if (connection) {
+			await connection.rollback()
+		}
 		if (!connection) response.status(500).json({
 			"name": "DATABASE_ERROR",
 			"type": "DATABASE_NO_CONNECTION",
@@ -230,6 +254,7 @@ Pedido.paidPedido = async (request, response) => {
 
 }
 
+// TODO: Historial de precios
 
 module.exports = Pedido
 
