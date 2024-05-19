@@ -6,11 +6,12 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon src/index_productos.js",
-    "dev-linux": "nodemon src/index_auth.js & nodemon src/api_pedido.js"
+    "dev-linux": "nodemon src/index_auth.js & nodemon src/api_pedido.js & nodemon src/Index_productos.js"
   },
   "author": "sabers",
   "license": "ISC",
   "dependencies": {
+    "axios": "^1.6.8",
     "bcryptjs": "^2.4.3",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",

@@ -1,7 +1,6 @@
 const jwt = require('jsonwebtoken');
 require("dotenv").config()
 
-// TODO: Ver como tratar los roles de usuario
 function authenticateToken(req, res, next) {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
@@ -25,4 +24,4 @@ function authenticateToken(req, res, next) {
     });
 }
 
-module.exports = { authenticateToken };
+module.exports = authenticateToken;

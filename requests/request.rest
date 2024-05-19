@@ -39,3 +39,29 @@ content-type: application/json
 {
     "id_sucursal": 2
 }
+
+###
+POST http://localhost:3002/1.0/pedidos
+content-type: application/json
+
+{
+    "cliente": {
+        "rut": "20913053-K"
+    },
+    "detalles": [
+        {
+            "cantidad": 1,
+            "product": {
+                "id_producto": 1
+            },
+            "sucursal": 1
+        },
+        {
+            "cantidad": 1,
+            "product": {
+                "id_producto": 2
+            },
+            "sucursal": 1
+        }
+    ]
+}
