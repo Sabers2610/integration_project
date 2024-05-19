@@ -18,9 +18,8 @@ router.route("/productos/:id/stock")
 	.get(Producto.findStock)
 
 router.route("/productos/:id/usd")
-    .get(Producto.changeCurrency)
+	.get(Producto.changeCurrency)
 
-module.exports = router
 router.route("/preguntas/")
 	.get(authenticateToken, authorizeAdmin, Producto.listQuestions)
 	.post(authenticateToken, Producto.question)
