@@ -12,7 +12,7 @@ User.login = async (request, response) => {
     var connection = null
     try {
         connection = await getConnection()
-        var sqlQuery = `SELECT nombre, correo, clave, empleado, admin
+        var sqlQuery = `SELECT nombre, correo, clave, empleado, admin, rut
                             FROM usuario
                             WHERE correo = ?`
         const values = [email]
@@ -27,7 +27,7 @@ User.login = async (request, response) => {
 
         const tokenPayload = {
             sessionID: uuid4(),
-            user: { name: user.name, email: email },
+            user: { name: user.name, email: email, rut: user.rut},
             role: user.empleado ? "Empleado" : "Cliente",
             admin: user.admin ? true : false,
             // Hay que sumar la fecha actual al tiempo de expiracion y dividirla en mil (Unix epoch)

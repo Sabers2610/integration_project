@@ -18,7 +18,7 @@ POST http://localhost:3001/1.0/login/
 content-type: application/json
 
 {
-    "email": "lu.saezd@duocuc.c",
+    "email": "lu.saezd@duocuc.cl",
     "password": "261002"
 }
 
@@ -42,6 +42,7 @@ content-type: application/json
 
 ###
 POST http://localhost:3002/1.0/pedidos
+Authorization: Bearer "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXNzaW9uSUQiOiI2ODhkNmEwOC1jOTU5LTQ3N2UtOGMwNS1mMmM2YThmNGU2MTAiLCJ1c2VyIjp7ImVtYWlsIjoibHUuc2FlemRAZHVvY3VjLmNsIn0sInJvbGUiOiJDbGllbnRlIiwiYWRtaW4iOmZhbHNlLCJleHAiOm51bGwsImlhdCI6MTcxNjE0MDU2NH0.-INNFWyhNnMDtbMhCnHMzMcp00dmQyGFnv79CVx9fBo"
 content-type: application/json
 
 {

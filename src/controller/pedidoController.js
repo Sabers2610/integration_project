@@ -7,6 +7,7 @@ const { v4: uuid4 } = require("uuid")
 //const encript = require("bcryptjs")
 const { SQLError, AuthError, FormatError } = require("../utils/exception.js")
 const axios = require("axios")
+const  createOrder  = require("../utils/mercadoPagoApi.js")
 require("dotenv").config()
 
 // TODO: Mostrar detalle de pedido
@@ -196,7 +197,9 @@ Pedido.postPedido = async (request, response) => {
 
 		await connection.commit();
 		// TODO: Cambiar el mensaje con informacion relevante
-		return response.status(200).json({ Message: "Exito al crear pedido" })
+		const url_pago = await createOrder(id_pedido, totalPedido)
+		console.log(url_pago)
+		return response.redirect(url_pago)
 
 	} catch (error) {
 		if (connection) {
@@ -224,7 +227,9 @@ Pedido.postPedido = async (request, response) => {
 
 // TODO: Ver como trabaja la api de pagos
 Pedido.paidPedido = async (request, response) => {
-	const { id_pedido, rut } = request.body
+	console.log(request.body)
+	return response.status(200).json({"message": "Recibi llamada"})
+	const { id_pedido } = request.body
 	var connection = null;
 
 	try {

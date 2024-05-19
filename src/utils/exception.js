@@ -46,4 +46,12 @@ class AuthError extends Error{
     }
 }
 
-module.exports = { SQLError, FormatError, AuthError}
+class PayError extends Error{
+    constructor(message, type){
+        super(message)
+        this.name = "PayError"
+        this.type = type
+    }
+}
+
+module.exports = { SQLError, FormatError, AuthError, PayError}

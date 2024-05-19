@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon src/index_productos.js",
+    "dev": "concurrently \"nodemon src/api_pedido.js\" \"nodemon src/index_productos.js\" \"nodemon src/index_auth.js\"",
     "dev-linux": "nodemon src/index_auth.js & nodemon src/api_pedido.js & nodemon src/Index_productos.js"
   },
   "author": "sabers",
@@ -13,9 +13,11 @@
   "dependencies": {
     "axios": "^1.6.8",
     "bcryptjs": "^2.4.3",
+    "concurrently": "^8.2.2",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.2",
+    "mercadopago": "^2.0.9",
     "morgan": "^1.10.0",
     "mysql2": "^3.9.7",
     "nodemon": "^3.1.0",

@@ -224,6 +224,8 @@ Producto.findOne = async (request, response) => {
     }
 }
 
+
+
 Producto.modify = async (request, response) => {
     const datos = request.body;
     const id = request.params.id;
