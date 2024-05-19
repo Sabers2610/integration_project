@@ -5,7 +5,7 @@ const { FormatError } = require("../utils/exception.js")
 //inicializamos la clase usuario
 class User {
     // creamos el contructor de la clase
-    constructor(rut="", name="", lastName="", age=0, direction="", email="", password="", especiality=null,employee=false,admin=false,enabled=true)
+    constructor(rut="", name="", lastName="", age=0, direction="", email="", password="", especiality=null,admin=false,enabled=true)
     {
         //seteamos losa tributos a sus respectivos validadores 
         this.setRut(rut)

@@ -66,3 +66,8 @@ content-type: application/json
         }
     ]
 }
+
+
+###
+
+GET http://localhost:3003/1.0/productos/1/usd

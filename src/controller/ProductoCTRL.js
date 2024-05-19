@@ -6,6 +6,7 @@ const Categoria = require("../models/Categoria.js")
 const Marca = require("../models/Marca.js")
 const Modelo = require("../models/Modelo.js")
 const Estado = require("../models/Estado.js")
+const axios = require("axios")
 
 const { getConnection } = require("../database.js")
 const { SQLError, FormatError } = require("../utils/exception.js")
@@ -273,6 +274,40 @@ Producto.modify = async (request, response) => {
     }
 };
 
+Producto.changeCurrency = async (request, response) => {
+    const  id_producto  = request.params.id
+    const today = new Date()
+
+    const year = today.getFullYear();
+    const month=String(today.getMonth() + 1).padStart(2, '0')
+    const day=String(today.getDate() + 1).padStart(2, '0');
+    const dateFormat=`${year}-${month}-${day}`
+
+    var connection = null
+    try{
+        connection = await getConnection()
+        const query = "SELECT precio FROM producto WHERE id_producto = ?"
+        const values = [id_producto]
+
+        const [rows] = await connection.query(query, values)
+
+        if(rows.length !== 1){
+            throw new SQLError(`Hubo un error al obtener el precio del producto asociado al ID: ${id_producto}`, "API_SQL_ERROR")
+        }
+        const producto = rows[0]
+        var url = `https://si3.bcentral.cl/SieteRestWS/SieteRestWS.ashx?user=${process.env.USER_BC_CHILE}&pass=${process.env.PASSWORD_BC_CHILE}&firstdate=${dateFormat}&timeseries=F073.TCO.PRE.Z.D&function=GetSeries`
+        
+        const response_usd = await axios.get(url)
+        var newPrice = producto.precio / response_usd.data.Series.Obs[0].value
+        return response.status(200).json({"precio_usd": newPrice})
+    } catch (error){
+        console.log(error)
+        if(error instanceof SQLError) response.status(500).json(error.exceptionJson())
+        else response.status(500).json(error)
+    } finally {
+        if (connection) connection.release()
+    }
+}
 
 module.exports = Producto
 

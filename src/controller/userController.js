@@ -12,7 +12,7 @@ User.login = async (request, response) => {
     var connection = null
     try {
         connection = await getConnection()
-        var sqlQuery = `SELECT nombre, correo, clave, empleado, admin, rut
+        var sqlQuery = `SELECT nombre, correo, clave, admin, rut
                             FROM usuario
                             WHERE correo = ?`
         const values = [email]
@@ -76,7 +76,7 @@ User.register = async (request, response) => {
         }
 
         connection = await getConnection()
-        const sqlQuery = `INSERT INTO usuario VALUES(?,?,?,?,?,?,?,?,?,?,?)`
+        const sqlQuery = `INSERT INTO usuario VALUES(?,?,?,?,?,?,?,?,?,?)`
         const values = [
             user.rut,
             user.name,
@@ -85,9 +85,8 @@ User.register = async (request, response) => {
             user.direction,
             user.email,
             user.password,
-            user.especialty ? user.especiality.id_especiality : null,
-            user.employee,
-            user.admin,
+            user.especiality ? user.especiality.id_especiality : null,
+            user.especiality ? true : false,
             user.enabled
         ]
         const [rows, fields] = await connection.query(sqlQuery, values)

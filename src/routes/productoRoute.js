@@ -15,4 +15,7 @@ router.route("/productos/:id")
 router.route("/productos/:id/stock")
     .get(Producto.findStock)
 
+router.route("/productos/:id/usd")
+    .get(Producto.changeCurrency)
+
 module.exports = router
