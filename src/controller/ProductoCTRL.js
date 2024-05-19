@@ -234,43 +234,43 @@ Producto.modify = async (request, response) => {
     try {
         connection = await getConnection();
 
-        if(datos.estado !== 3){
+        if (datos.estado !== 3) {
             var query = `SELECT descuento, precio FROM producto WHERE id_producto = ?`
             var values = [id]
             var [rows, field] = await connection.query(query, values)
-            if(rows.length === 0) throw new SQLError(`No se pudo encontrar un producto con el ID: ${id}`, "API_SQL_ERROR")
+            if (rows.length === 0) throw new SQLError(`No se pudo encontrar un producto con el ID: ${id}`, "API_SQL_ERROR")
 
-            if(rows[0].descuento > 0){
-                var precio_normal = ((rows.precio * 100)/rows.descuento)
+            if (rows[0].descuento > 0) {
+                var precio_normal = ((rows.precio * 100) / rows.descuento)
                 query = `UPDATE producto SET
                             id_categoria = ? , id_estado = 1 , precio = ? , decuento = 0
                             WHERE id_producto=?`
                 values = [datos.id_categoria, precio_normal, id]
                 [rows, field] = await connection.query(query, values)
-                if(rows.affectedRows === 0){
+                if (rows.affectedRows === 0) {
                     throw new SQLError(`No se pudo modificar el producto`, "API_SQL_ERROR")
                 }
             }
-        } else if(datos.estado === 3){
-            const producto = new Producto(descuento=datos.descuento)
+        } else if (datos.estado === 3) {
+            const producto = new Producto(descuento = datos.descuento)
             query = `UPDATE producto SET
                     id_categoria = null , id_estado = 3 , precio = precio * ? , decuento = ?
                     WHERE id_producto=?`
-            values = [datos.descuento/100 , datos.descuento, id]
+            values = [datos.descuento / 100, datos.descuento, id]
             [rows, field] = await connection.query(query, values)
-            if(rows.length === 0) throw new SQLError(`No se pudo encontrar un producto con el ID: ${id}`, "API_SQL_ERROR")
+            if (rows.length === 0) throw new SQLError(`No se pudo encontrar un producto con el ID: ${id}`, "API_SQL_ERROR")
 
-        } else{
-            return response.status(401).json({'message': 'Estado invalido'})
+        } else {
+            return response.status(401).json({ 'message': 'Estado invalido' })
         }
-        return response.status(200).json({'message': 'Producto cambiado correctamente'})
+        return response.status(200).json({ 'message': 'Producto cambiado correctamente' })
 
     } catch (error) {
         console.log(error)
-        if(error instanceof SQLError) response.status(500).json(error.exceptionJson())
+        if (error instanceof SQLError) response.status(500).json(error.exceptionJson())
         else response.status(500).json(error)
     } finally {
-        if(connection) connection.release()
+        if (connection) connection.release()
     }
 };
 
@@ -308,6 +308,132 @@ Producto.changeCurrency = async (request, response) => {
         if (connection) connection.release()
     }
 }
+
+Producto.question = async (request, response) => {
+    // TODO: Conseguir rut desde jwt
+    const rut_jwt = request.user.user.rut
+    if (request.user.admin === true) {
+        return response.status(403).json({ message: 'Cuenta admin no esta autorizada para hacer preguntas' })
+    }
+    const { id_categoria, pregunta } = request.body;
+    let connection = null;
+
+    try {
+        connection = await getConnection();
+
+        //Conseguir a los empleados con la especialidad relacionada a la categoria del producto
+        const queryEmpleado = 'SELECT rut FROM usuario WHERE id_especialidad = ?';
+        const valuesEmpleado = [id_categoria]
+        const [rows, _fields] = await connection.query(queryEmpleado, valuesEmpleado);
+        if (rows.length === 0) {
+            return response.status(404).json({ message: 'No se encontraron usuarios con esa especialidad.' });
+        }
+
+        const randomNumber = Math.floor(Math.random() * rows.length);
+        const empleado = rows[randomNumber].rut
+
+        // Insertar la pregunta en la base de datos
+        const queryPregunta = 'INSERT INTO pregunta (rut_cliente, rut_empleado, id_categoria, pregunta, fecha) VALUES (?, ?, ?, ?, NOW())';
+        const valuesPregunta = [rut_jwt, empleado, id_categoria, pregunta];
+        const [row, _field] = await connection.query(queryPregunta, valuesPregunta);
+
+        // Verificar si la pregunta se insertó correctamente
+        if (row.affectedRows === 1) {
+            response.status(200).json({ message: 'Pregunta realizada con éxito.' });
+        } else {
+            response.status(500).json({ message: 'Error al realizar la pregunta.' });
+        }
+    } catch (error) {
+        if (!connection) response.status(500).json({
+            "name": "DATABASE_ERROR",
+            "type": "DATABASE_NO_CONNECTION",
+            "message": error.message
+        })
+
+        if (error instanceof SQLError) return response.status(500).json(error.exceptionJson())
+
+        else return response.status(500).json({
+            "name": error.name,
+            "type": "INTERNAL_API_ERROR",
+            "message": error.message
+        })
+    } finally {
+        if (connection) {
+            connection.release()
+        }
+    }
+};
+
+Producto.answer = async (request, response) => {
+    const { id_pregunta, respuesta } = request.body;
+    const rut_jwt = request.user.user.rut
+    let connection = null;
+
+    try {
+        connection = await getConnection();
+
+        const queryUpdate = "UPDATE pregunta SET respuesta = ? WHERE id_pregunta = ? AND rut_empleado = ?"
+        const valueUpdate = [respuesta, id_pregunta, rut_jwt]
+        const [row, _field] = await connection.query(queryUpdate, valueUpdate)
+
+        if (row.affectedRows === 1) {
+            response.status(200).json({ message: 'Respuesta registrada' })
+        } else {
+            response.status(404).json({ message: 'No se encontro la pregunta o no esta autorizado para responder' })
+        }
+    } catch (error) {
+        if (!connection) response.status(500).json({
+            "name": "DATABASE_ERROR",
+            "type": "DATABASE_NO_CONNECTION",
+            "message": error.message
+        })
+
+        if (error instanceof SQLError) return response.status(500).json(error.exceptionJson())
+
+        else return response.status(500).json({
+            "name": error.name,
+            "type": "INTERNAL_API_ERROR",
+            "message": error.message
+        })
+    } finally {
+        if (connection) {
+            connection.release()
+        }
+    }
+};
+
+Producto.listQuestions = async (request, response) => {
+    let connection = null;
+
+    try {
+        connection = await getConnection();
+
+        const queryAll = "SELECT * FROM pregunta"
+        const [rows, _fields] = await connection.query(queryAll)
+
+        return response.status(200).json(rows)
+
+    } catch (error) {
+        if (!connection) response.status(500).json({
+            "name": "DATABASE_ERROR",
+            "type": "DATABASE_NO_CONNECTION",
+            "message": error.message
+        })
+
+        if (error instanceof SQLError) return response.status(500).json(error.exceptionJson())
+
+        else return response.status(500).json({
+            "name": error.name,
+            "type": "INTERNAL_API_ERROR",
+            "message": error.message
+        })
+    } finally {
+        if (connection) {
+            connection.release()
+        }
+    }
+}
+
 
 module.exports = Producto
 

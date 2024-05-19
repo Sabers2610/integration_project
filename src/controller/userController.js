@@ -27,7 +27,7 @@ User.login = async (request, response) => {
 
         const tokenPayload = {
             sessionID: uuid4(),
-            user: { name: user.name, email: email, rut: user.rut},
+            user: { name: user.name, email: email, rut: user.rut },
             role: user.empleado ? "Empleado" : "Cliente",
             admin: user.admin ? true : false,
             // Hay que sumar la fecha actual al tiempo de expiracion y dividirla en mil (Unix epoch)

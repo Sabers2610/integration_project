@@ -7,7 +7,7 @@ const { v4: uuid4 } = require("uuid")
 //const encript = require("bcryptjs")
 const { SQLError, AuthError, FormatError } = require("../utils/exception.js")
 const axios = require("axios")
-const  createOrder  = require("../utils/mercadoPagoApi.js")
+const createOrder = require("../utils/mercadoPagoApi.js")
 require("dotenv").config()
 
 // TODO: Mostrar detalle de pedido
@@ -71,11 +71,11 @@ Pedido.postPedido = async (request, response) => {
 	const { cliente, detalles } = request.body
 	//Token para verificar que el pedido lo esta realizando el mismo cliente
 	// TODO: Modificar JWT para que entrege el rut
-	const rut_jwt = request.user.user.email
+	const rut_jwt = request.user.user.rut
 
-	//if (cliente.rut !== rut_jwt) {
-	//	return response.status(403).json({ message: 'El RUT del cliente no coincide con el RUT del token' });
-	//}
+	if (cliente.rut !== rut_jwt) {
+		return response.status(403).json({ message: 'El RUT del cliente no coincide con el RUT del token' });
+	}
 
 	if (!cliente || typeof cliente.rut !== 'string') {
 		return response.status(400).json({ message: 'Cliente y RUT del cliente son requeridos y el RUT debe ser una cadena.' });
@@ -228,7 +228,7 @@ Pedido.postPedido = async (request, response) => {
 // TODO: Ver como trabaja la api de pagos
 Pedido.paidPedido = async (request, response) => {
 	console.log(request.body)
-	return response.status(200).json({"message": "Recibi llamada"})
+	return response.status(200).json({ "message": "Recibi llamada" })
 	const { id_pedido } = request.body
 	var connection = null;
 
