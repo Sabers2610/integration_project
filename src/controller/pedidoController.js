@@ -42,14 +42,25 @@ Pedido.getPedido = async (request, response) => {
 // TODO: Mostrar detalle de pedido
 Pedido.getPedidoId = async (request, response) => {
 	const { id } = request.params
+
+	const rut_jwt = request.user.user.rut
+	const admin_jwt = request.user.admin
 	var connection = null;
 
 	try {
 		connection = await getConnection();
-		const sqlQuery = 'SELECT id_pedido, fecha_hora_pedido, estado, total FROM pedido WHERE id_pedido = ?';
+		const sqlQuery = 'SELECT rut, id_pedido, fecha_hora_pedido, estado, total FROM pedido WHERE id_pedido = ?';
 		const values = [id]
-		const [rows, fields] = await connection.query(sqlQuery, values);
-		return response.status(200).json(rows)
+		const [rows, _fields] = await connection.query(sqlQuery, values);
+		if (rows[0].rut !== rut_jwt && !admin_jwt) {
+			return response.status(403).json({ message: 'El RUT del cliente no coincide con el RUT del token' });
+		}
+		const sqlDetalle = 'SELECT dp.cantidad, dp.sub_total, p.nombre_producto, s.nombre_sucursal FROM detalle_pedido dp JOIN producto p ON dp.id_producto=p.id_producto JOIN sucursal s ON dp.id_sucursal=s.id_sucursal WHERE id_pedido = ?';
+		const valuesDetalle = [id]
+		const [rowsDetalle, _fieldsDetalle] = await connection.query(sqlDetalle, valuesDetalle);
+
+
+		return response.status(200).json({ pedido: rows, detalle: rowsDetalle })
 
 	} catch (error) {
 		if (!connection) response.status(500).json({
@@ -228,7 +239,6 @@ Pedido.postPedido = async (request, response) => {
 // TODO: Ver como trabaja la api de pagos
 Pedido.paidPedido = async (request, response) => {
 	console.log(request.body)
-	return response.status(200).json({ "message": "Recibi llamada" })
 	const { id_pedido } = request.body
 	var connection = null;
 
