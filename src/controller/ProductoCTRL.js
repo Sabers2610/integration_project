@@ -284,7 +284,7 @@ Producto.modify = async (request, response) => {
         else if(error instanceof FormatError) response.status(401).json(error.exceptionJson())
         else response.status(500).json(error)
     } finally {
-        if(connection) connection.release()
+        if (connection) connection.release()
     }
 };
 
@@ -322,6 +322,132 @@ Producto.changeCurrency = async (request, response) => {
         if (connection) connection.release()
     }
 }
+
+Producto.question = async (request, response) => {
+    // TODO: Conseguir rut desde jwt
+    const rut_jwt = request.user.user.rut
+    if (request.user.admin === true) {
+        return response.status(403).json({ message: 'Cuenta admin no esta autorizada para hacer preguntas' })
+    }
+    const { id_categoria, pregunta } = request.body;
+    let connection = null;
+
+    try {
+        connection = await getConnection();
+
+        //Conseguir a los empleados con la especialidad relacionada a la categoria del producto
+        const queryEmpleado = 'SELECT rut FROM usuario WHERE id_especialidad = ?';
+        const valuesEmpleado = [id_categoria]
+        const [rows, _fields] = await connection.query(queryEmpleado, valuesEmpleado);
+        if (rows.length === 0) {
+            return response.status(404).json({ message: 'No se encontraron usuarios con esa especialidad.' });
+        }
+
+        const randomNumber = Math.floor(Math.random() * rows.length);
+        const empleado = rows[randomNumber].rut
+
+        // Insertar la pregunta en la base de datos
+        const queryPregunta = 'INSERT INTO pregunta (rut_cliente, rut_empleado, id_categoria, pregunta, fecha) VALUES (?, ?, ?, ?, NOW())';
+        const valuesPregunta = [rut_jwt, empleado, id_categoria, pregunta];
+        const [row, _field] = await connection.query(queryPregunta, valuesPregunta);
+
+        // Verificar si la pregunta se insertó correctamente
+        if (row.affectedRows === 1) {
+            response.status(200).json({ message: 'Pregunta realizada con éxito.' });
+        } else {
+            response.status(500).json({ message: 'Error al realizar la pregunta.' });
+        }
+    } catch (error) {
+        if (!connection) response.status(500).json({
+            "name": "DATABASE_ERROR",
+            "type": "DATABASE_NO_CONNECTION",
+            "message": error.message
+        })
+
+        if (error instanceof SQLError) return response.status(500).json(error.exceptionJson())
+
+        else return response.status(500).json({
+            "name": error.name,
+            "type": "INTERNAL_API_ERROR",
+            "message": error.message
+        })
+    } finally {
+        if (connection) {
+            connection.release()
+        }
+    }
+};
+
+Producto.answer = async (request, response) => {
+    const { id_pregunta, respuesta } = request.body;
+    const rut_jwt = request.user.user.rut
+    let connection = null;
+
+    try {
+        connection = await getConnection();
+
+        const queryUpdate = "UPDATE pregunta SET respuesta = ? WHERE id_pregunta = ? AND rut_empleado = ?"
+        const valueUpdate = [respuesta, id_pregunta, rut_jwt]
+        const [row, _field] = await connection.query(queryUpdate, valueUpdate)
+
+        if (row.affectedRows === 1) {
+            response.status(200).json({ message: 'Respuesta registrada' })
+        } else {
+            response.status(404).json({ message: 'No se encontro la pregunta o no esta autorizado para responder' })
+        }
+    } catch (error) {
+        if (!connection) response.status(500).json({
+            "name": "DATABASE_ERROR",
+            "type": "DATABASE_NO_CONNECTION",
+            "message": error.message
+        })
+
+        if (error instanceof SQLError) return response.status(500).json(error.exceptionJson())
+
+        else return response.status(500).json({
+            "name": error.name,
+            "type": "INTERNAL_API_ERROR",
+            "message": error.message
+        })
+    } finally {
+        if (connection) {
+            connection.release()
+        }
+    }
+};
+
+Producto.listQuestions = async (request, response) => {
+    let connection = null;
+
+    try {
+        connection = await getConnection();
+
+        const queryAll = "SELECT * FROM pregunta"
+        const [rows, _fields] = await connection.query(queryAll)
+
+        return response.status(200).json(rows)
+
+    } catch (error) {
+        if (!connection) response.status(500).json({
+            "name": "DATABASE_ERROR",
+            "type": "DATABASE_NO_CONNECTION",
+            "message": error.message
+        })
+
+        if (error instanceof SQLError) return response.status(500).json(error.exceptionJson())
+
+        else return response.status(500).json({
+            "name": error.name,
+            "type": "INTERNAL_API_ERROR",
+            "message": error.message
+        })
+    } finally {
+        if (connection) {
+            connection.release()
+        }
+    }
+}
+
 
 module.exports = Producto
 
