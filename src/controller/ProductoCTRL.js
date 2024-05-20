@@ -448,6 +448,9 @@ Producto.listQuestions = async (request, response) => {
     }
 }
 
+Producto.modify = async (request, response)=>{
+    
+}
 
 module.exports = Producto
 
