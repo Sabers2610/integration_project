@@ -228,7 +228,6 @@ Pedido.postPedido = async (request, response) => {
 // TODO: Ver como trabaja la api de pagos
 Pedido.paidPedido = async (request, response) => {
 	console.log(request.body)
-	return response.status(200).json({"message": "Recibi llamada"})
 	const { id_pedido } = request.body
 	var connection = null;
 

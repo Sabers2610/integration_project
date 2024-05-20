@@ -35,7 +35,8 @@ Producto.allCategory = async (request, response) => {
                     JOIN producto as p ON (p.id_tipo_producto = tp.id_tipo_producto)  JOIN categoria_producto as c ON (c.id_categoria = p.id_categoria) 
                     JOIN modelo as m ON (p.id_modelo = m.id_modelo)
                     JOIN marca as m2 ON (m2.id_marca = m.id_marca) JOIN estado_producto AS e ON e.id_estado = p.id_estado
-                    WHERE c.id_categoria = ? AND p.disponibilidad = true`
+                    WHERE c.id_categoria = ? AND p.disponibilidad = true
+                    ORDER BY p.id_tipo_producto`
         const values = [id_categoria]
         const [rows, fields] = await connection.query(sql, values)
         if (rows.length === 0) {
@@ -84,7 +85,8 @@ Producto.allBrand = async (request, response) => {
                         FROM marca as m JOIN modelo as m2 ON m.id_marca = m2.id_marca JOIN producto as p ON p.id_modelo = m2.id_modelo
                         JOIN tipo_producto as tp ON tp.id_tipo_producto = p.id_tipo_producto 
                         JOIN estado_producto AS e ON e.id_estado = p.id_estado
-                        WHERE m.id_marca = ? AND p.disponibilidad = true`
+                        WHERE m.id_marca = ? AND p.disponibilidad = true
+                        ORDER BY p.id_tipo_producto`
         const values = [id_marca]
         const [rows, fields] = await connection.query(query, values)
 
@@ -228,46 +230,58 @@ Producto.findOne = async (request, response) => {
 
 
 Producto.modify = async (request, response) => {
-    const datos = request.body;
-    const id = request.params.id;
+    const id = request.params.id
+    const {descuento, categoria, estado} = request.body;
     let connection = null;
+    if(id === undefined || descuento === undefined ||categoria === undefined || estado === undefined){
+        throw new FormatError("Peticion Invalida", "API_REQUEST_ERROR")
+    }
     try {
-        connection = await getConnection();
+        connection = await getConnection()
 
-        if(datos.estado !== 3){
-            var query = `SELECT descuento, precio FROM producto WHERE id_producto = ?`
-            var values = [id]
-            var [rows, field] = await connection.query(query, values)
-            if(rows.length === 0) throw new SQLError(`No se pudo encontrar un producto con el ID: ${id}`, "API_SQL_ERROR")
+        var query = "SELECT precio, descuento FROM producto WHERE id_producto = ?"
+        var values = [id]
+        var [rows, fields] = await connection.query(query, values)
+        console.log(rows)
+        var precioActual = rows[0].precio
+        var descuentoActual = rows[0].descuento
 
-            if(rows[0].descuento > 0){
-                var precio_normal = ((rows.precio * 100)/rows.descuento)
-                query = `UPDATE producto SET
-                            id_categoria = ? , id_estado = 1 , precio = ? , decuento = 0
-                            WHERE id_producto=?`
-                values = [datos.id_categoria, precio_normal, id]
-                [rows, field] = await connection.query(query, values)
-                if(rows.affectedRows === 0){
-                    throw new SQLError(`No se pudo modificar el producto`, "API_SQL_ERROR")
-                }
+        if(estado === 1 && categoria !== null){
+            if(descuentoActual > 0){
+                var precioNuevo = (precioActual * 100) / descuentoActual
             }
-        } else if(datos.estado === 3){
-            const producto = new Producto(descuento=datos.descuento)
-            query = `UPDATE producto SET
-                    id_categoria = null , id_estado = 3 , precio = precio * ? , decuento = ?
-                    WHERE id_producto=?`
-            values = [datos.descuento/100 , datos.descuento, id]
-            [rows, field] = await connection.query(query, values)
-            if(rows.length === 0) throw new SQLError(`No se pudo encontrar un producto con el ID: ${id}`, "API_SQL_ERROR")
+            query = "UPDATE producto SET precio=?, descuento=0, id_categoria=?, id_estado=1 WHERE id_producto=?"
+            values = [precioNuevo !== undefined ? precioNuevo : precioActual, categoria, id]
 
-        } else{
-            return response.status(401).json({'message': 'Estado invalido'})
+            var [rows, fields] = await connection.query(query, values)
+            if(rows.affectedRows !== 1){
+                throw new SQLError("Error al modificar el producto", "API_SQL_ERROR")
+            }
         }
-        return response.status(200).json({'message': 'Producto cambiado correctamente'})
+        else if(estado === 3 && descuento > 0){
+            console.log(categoria, id, descuento, precioActual, estado)
+            if(descuentoActual > 0){
+                throw new FormatError("El producto ya posee promocion", "API_PRODUCTO_ERROR")
+            }
+            var precioNuevo = precioActual * (descuento/100)
+            console.log(precioActual, descuentoActual)
+            query = "UPDATE producto SET precio=?, descuento=?, id_categoria=null, id_estado=3 WHERE id_producto=?"
+            values = [precioNuevo, descuento, id]
+
+            var [rows, fields] = await connection.query(query, values)
+            if(rows.affectedRows !== 1){
+                throw new SQLError("Error al modificar el producto", "API_SQL_ERROR")
+            }
+        }
+        else {
+            throw new FormatError("Peticion invalida", "API_REQUEST_ERROR")
+        }
+        return response.status(200).json({"message": "Producto modificado correctamente"})
 
     } catch (error) {
         console.log(error)
         if(error instanceof SQLError) response.status(500).json(error.exceptionJson())
+        else if(error instanceof FormatError) response.status(401).json(error.exceptionJson())
         else response.status(500).json(error)
     } finally {
         if(connection) connection.release()
@@ -280,7 +294,7 @@ Producto.changeCurrency = async (request, response) => {
 
     const year = today.getFullYear();
     const month=String(today.getMonth() + 1).padStart(2, '0')
-    const day=String(today.getDate() + 1).padStart(2, '0');
+    const day=String(today.getDate()).padStart(2, '0');
     const dateFormat=`${year}-${month}-${day}`
 
     var connection = null

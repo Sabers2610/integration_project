@@ -71,3 +71,13 @@ content-type: application/json
 ###
 
 GET http://localhost:3003/1.0/productos/1/usd
+
+###
+PUT http://localhost:3003/1.0/productos/1
+content-type: application/json
+
+{
+    "descuento": 40,
+    "categoria": 1,
+    "estado": 3
+}

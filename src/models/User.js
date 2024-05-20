@@ -5,7 +5,7 @@ const { FormatError } = require("../utils/exception.js")
 //inicializamos la clase usuario
 class User {
     // creamos el contructor de la clase
-    constructor(rut="", name="", lastName="", age=0, direction="", email="", password="", especiality=null,admin=false,enabled=true)
+    constructor(rut="", name="", lastName="", age=0, direction="", email="", password="", especiality=null,admin=false)
     {
         //seteamos losa tributos a sus respectivos validadores 
         this.setRut(rut)
@@ -15,9 +15,8 @@ class User {
         this.setEmail(email)
         this.password = password
         this.especiality = especiality
-        this.employee = employee
         this.admin = admin
-        this.enabled = enabled
+
     }
 
     setRut(rut) {
@@ -85,7 +84,6 @@ class User {
             especiality: this.especiality !== null ? this.especiality.toJson() : "N/A",
             employee:this.employee ? "Empleado" : "Cliente",
             admin: this.admin ? "Admin" : "N/A",
-            enabled: this.enabled ? "Habilitada" : "Deshabilitada"
         }
 
         return json

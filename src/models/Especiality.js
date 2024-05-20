@@ -1,15 +1,13 @@
 class Especiality {
-    constructor(id_especiality=0, name_especiality="", enabled=true){
+    constructor(id_especiality=0, name_especiality="",){
         this.id_especiality = id_especiality
         this.name_especiality = name_especiality
-        this.enabled = enabled
     }
 
     toJson() {
         const json = {
             id_especiality: this.id_especiality,
             name_especiality:this.name_especiality,
-            enabled:this.enabled ? "Habilitada" : "Deshabilitada"
         }
 
         return json

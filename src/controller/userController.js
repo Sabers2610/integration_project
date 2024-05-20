@@ -66,7 +66,11 @@ User.login = async (request, response) => {
 User.register = async (request, response) => {
     const { rut, name, lastname, age, direction, email, password, esp } = request.body
     var connection = null
+    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/
     try {
+        if(!regex.test(password)){
+            throw new FormatError("Contraseña insegura", "API_PASSWORD_ERROR")
+        }
         var passwordHash = await encript.hash(password, 10)
         const user = new User(rut, name, lastname, age, direction, email, passwordHash)
 
@@ -76,7 +80,7 @@ User.register = async (request, response) => {
         }
 
         connection = await getConnection()
-        const sqlQuery = `INSERT INTO usuario VALUES(?,?,?,?,?,?,?,?,?,?)`
+        const sqlQuery = `INSERT INTO usuario VALUES(?,?,?,?,?,?,?,?,?)`
         const values = [
             user.rut,
             user.name,
@@ -85,9 +89,8 @@ User.register = async (request, response) => {
             user.direction,
             user.email,
             user.password,
-            user.especiality ? user.especiality.id_especiality : null,
-            user.especiality ? true : false,
-            user.enabled
+            user.especiality ? user.especiality.id_especiality : null, //id_especialidad
+            user.especiality ? true : false, // admin, en caso de que tenga especialidad es que es empleado
         ]
         const [rows, fields] = await connection.query(sqlQuery, values)
 
