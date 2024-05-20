@@ -22,11 +22,11 @@ router.route("/productos/:id/usd")
 	.get(Producto.changeCurrency)
 
 router.route("/preguntas/")
-	.get(authenticateToken, authorizeAdmin, Producto.listQuestions)
-	.post(authenticateToken, Producto.question)
+	.get(jwtvalidate, jwtAdminvalidate, Producto.listQuestions)
+	.post(jwtvalidate, Producto.question)
 
 router.route("/preguntas/respuesta/")
-	.post(authenticateToken, authorizeAdmin, Producto.answer)
+	.post(jwtvalidate, jwtAdminvalidate, Producto.answer)
 
 
 module.exports = router

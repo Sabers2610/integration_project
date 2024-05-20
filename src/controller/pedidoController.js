@@ -210,7 +210,7 @@ Pedido.postPedido = async (request, response) => {
 		// TODO: Cambiar el mensaje con informacion relevante
 		const url_pago = await createOrder(id_pedido, totalPedido)
 		console.log(url_pago)
-		return response.redirect(url_pago)
+		return response.status(200).json({"url_pago": url_pago})
 
 	} catch (error) {
 		if (connection) {
