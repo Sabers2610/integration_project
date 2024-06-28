@@ -82,8 +82,7 @@ class User {
             direction:this.direction,
             email:this.email,
             especiality: this.especiality !== null ? this.especiality.toJson() : "N/A",
-            employee:this.employee ? "Empleado" : "Cliente",
-            admin: this.admin ? "Admin" : "N/A",
+            employee:this.admin ? "Admin" : "Cliente",
         }
 
         return json

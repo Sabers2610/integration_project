@@ -28,5 +28,8 @@ router.route("/preguntas/")
 router.route("/preguntas/respuesta/")
 	.post(jwtvalidate, jwtAdminvalidate, Producto.answer)
 
+router.route("/productos/especiales/")
+	.post(Producto.findEspecial)
+
 
 module.exports = router

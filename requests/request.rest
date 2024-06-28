@@ -19,7 +19,7 @@ content-type: application/json
 
 {
     "email": "lu.saezd@duocuc.cl",
-    "password": "261002"
+    "password": "Luis2610**"
 }
 
 ###
@@ -33,11 +33,11 @@ GET http://localhost:3003/1.0/productos/marca/2
 
 
 ###
-POST http://localhost:3003/1.0/productos/6
+POST http://localhost:3003/1.0/productos/1
 content-type: application/json
 
 {
-    "id_sucursal": 2
+    "id_sucursal": 1
 }
 
 ###
@@ -80,4 +80,13 @@ content-type: application/json
     "descuento": 40,
     "categoria": 1,
     "estado": 3
+}
+
+###
+
+POST http://localhost:3003/1.0/productos/especiales/
+content-type: application/json
+
+{
+    "id_estado": 3
 }
