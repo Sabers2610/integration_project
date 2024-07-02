@@ -64,7 +64,7 @@ User.login = async (request, response) => {
 }
 
 User.register = async (request, response) => {
-    const { rut, name, lastname, age, direction, email, password, esp } = request.body
+    const { rut, name, lastname, age, direction, email, password } = request.body
     var connection = null
     const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/
     try {
@@ -73,11 +73,6 @@ User.register = async (request, response) => {
         }
         var passwordHash = await encript.hash(password, 10)
         const user = new User(rut, name, lastname, age, direction, email, passwordHash)
-
-        if (esp !== "") {
-            const especiality = new Especiality(esp.id, esp.name_especiality, true)
-            user.especiality = especiality
-        }
 
         connection = await getConnection()
         const sqlQuery = `INSERT INTO usuario VALUES(?,?,?,?,?,?,?,?,?)`
@@ -89,8 +84,8 @@ User.register = async (request, response) => {
             user.direction,
             user.email,
             user.password,
-            user.especiality ? user.especiality.id_especiality : null, //id_especialidad
-            user.especiality ? true : false, // admin, en caso de que tenga especialidad es que es empleado
+            null,
+            false
         ]
         const [rows, fields] = await connection.query(sqlQuery, values)
 
