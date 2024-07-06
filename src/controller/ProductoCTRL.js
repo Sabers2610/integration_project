@@ -178,6 +178,9 @@ Producto.findOne = async (request, response) => {
     const historial_precio = []
     var connection = null
     try {
+        if(!id_sucursal) {
+            throw new FormatError("Debe ingresar el id de la sucursal", "API_PRODUCTO_ERROR")
+        }
         connection = await getConnection()
         const query = `SELECT m.id_marca, m.nombre_marca,
                             m2.id_modelo, m2.nombre_modelo,
@@ -234,6 +237,7 @@ Producto.findOne = async (request, response) => {
     } catch (error) {
         console.log(error)
         if (error instanceof SQLError) response.status(500).json(error.exceptionJson())
+        else if(error instanceof FormatError) response.status(400).json(error.exceptionJson())
         else response.status(500).json(error)
 
     } finally {
