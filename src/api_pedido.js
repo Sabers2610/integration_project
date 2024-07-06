@@ -1,16 +1,20 @@
-const express = require("express")
-const app = express()
-require("dotenv").config()
-app.use(express.json())
+const express = require('express');
+const app = express();
+const path = require('path');
+require('dotenv').config();
 
-app.get("/", (request, response) => {
-    response.send("<p>Api Rest pedido running</p>")
-})
+app.use(express.json());
 
-app.use("/1.0/", require("./routes/pedidoRoute.js"))
+app.use(express.static(path.join(__dirname, 'views')));
 
-const PORT = process.env.PORT || 3002
+app.get('/', (request, response) => {
+    response.sendFile(path.join(__dirname, 'views', 'doc_pedidos.html'));
+});
 
-app.listen(PORT, () => {
-    console.log(`Api pedido rest Running in port ${PORT}`)
-})
+app.use('/1.0', require('./routes/pedidoRoute.js'));
+
+const PORT_PEDIDOS = process.env.PORT_PEDIDOS || 3002;
+
+app.listen(PORT_PEDIDOS, () => {
+    console.log(`Api pedido rest Running in port ${PORT_PEDIDOS}`);
+});
