@@ -6,7 +6,7 @@ const { getPedido, getPedidoId, postPedido, paidPedido } = require("../controlle
 const router = Router()
 
 router.route("/pedidos/")
-	.get(authenticateToken, getPedido) // TODO: Quitar authorizeAdmin esta solamente por razones de prueba
+	.get(authenticateToken, authorizeAdmin, getPedido)
 	.post(authenticateToken, postPedido)
 
 router.route("/pedidos/:id")

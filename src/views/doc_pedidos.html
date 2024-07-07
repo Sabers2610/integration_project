@@ -17,18 +17,96 @@
 			<h2>Endpoints</h2>
 			<ul>
 				<li>
-					<h3>GET /1.0/resource</h3>
-					<p>Descripcion de lo que hace</p>
-					<pre><code>curl -X GET https://localhost:3002/1.0/resource</code></pre>
-					<p>Parameters:</p>
+					<h3>GET /1.0/pedidos/</h3>
+					<p>Recupera una lista de todos los ultimos pedidos</p>
+					<pre><code>curl -X GET https://localhost:3002/1.0/pedidos -H "Authorization: Bearer JWT_TOKEN</code></pre>
+					<p>Autenticación:</p>
 					<ul>
-						<li><code>param1</code>: Descripcion del param 1.</li>
-						<li><code>param2</code>: Descripcion del param 2.</li>
+						<li><strong>Type:</strong> Bearer Token (JWT) </li>
+						<li><strong>Header:</strong> <code>Authorization: Bearer JWT_TOKEN</code></li>
 					</ul>
-					<p>Response:</p>
-					<pre><code>{ "key": "value" }</code></pre>
+					<ul>
+					</ul>
+					<p>Respuesta:</p>
+					<pre><code>[<br>    {"id_pedido":1,"fecha_hora_pedido":"2024-07-02T21:00:11.000Z","estado":0,"total":240000,"rut":"1111111-1"},<br>    {"id_pedido":2,"fecha_hora_pedido":"2024-07-02T21:00:47.000Z","estado":0,"total":4500000,"rut":"1111111-2"}<br>]</code></pre>
 				</li>
-				<!-- Repetir para lo otros endpoints-->
+
+				<hr>
+
+				<li>
+					<h3>POST /1.0/pedidos/</h3>
+					<p>Crea un nuevo pedido</p>
+					<pre><code>curl -X POST https://localhost:3002/1.0/pedidos -H "Authorization: Bearer JWT_TOKEN -H "Content-Type: application/json"</code></pre>
+					<p>Autenticación:</p>
+					<ul>
+						<li><strong>Type:</strong> Bearer Token (JWT) </li>
+						<li><strong>Header:</strong> <code>Authorization: Bearer JWT_TOKEN</code></li>
+					</ul>
+					<p>Request Body:</p>
+						<pre><code>{
+    "cliente": {
+        "rut": "1111111-1"
+    },
+    "detalles": [
+        {
+            "cantidad": 1,
+            "product": {
+                "id_producto": 2
+            },
+            "sucursal": 1
+        }
+    ]
+}</code></pre>
+					<p>Request Body Parameters:</p>
+                    <ul>
+                        <li><code>cliente</code>: <strong>Type</strong>: JSON. <strong>Requerido</strong>: Si. <strong>Descripción</strong>: Información del cliente.</li>
+                        <li><code>rut</code>: <strong>Type</strong>: String. <strong>Requerido</strong>: Si. <strong>Descripción</strong>: Rut del cliente.</li>
+                        <li><code>detalles</code>: <strong>Type</strong>: Array. <strong>Requerido</strong>: Si. <strong>Descripción</strong>: Información de los productos comprados.</li>
+                        <li><code>cantidad</code>: <strong>Type</strong>: Int. <strong>Requerido</strong>: Si. <strong>Descripción</strong>: Cantidad del producto.</li>
+                        <li><code>product</code>: <strong>Type</strong>: JSON. <strong>Requerido</strong>: Si. <strong>Descripción</strong>: Información del producto seleccionado.</li>
+                        <li><code>id_producto</code>: <strong>Type</strong>: Int. <strong>Requerido</strong>: Si. <strong>Descripción</strong>: Número identificador del producto.</li>
+                        <li><code>sucursal</code>: <strong>Type</strong>: Int. <strong>Requerido</strong>: Si. <strong>Descripción</strong>: Número identificador de la sucursal.</li>
+                    </ul>
+					<p>Respuesta:</p>
+					<pre><code>{<br>    "url_pago": "https://sandbox.mercadopago.cl/checkout/v1/redirect?pref_id=1817993219-dcc7aa04-c451-45f4-b23a-e7fe6a48886e"<br>}</code></pre>
+				</li>
+
+				<hr>
+
+				<li>
+					<h3>GET /1.0/pedidos/:id</h3>
+					<p>Crea un nuevo pedido</p>
+					<pre><code>curl -X GET https://localhost:3002/1.0/pedidos -H "Authorization: Bearer JWT_TOKEN -d "id=1"</code></pre>
+					<p>Parámetros:</p>
+					<ul>
+						<li><code>id</code>: Número identificador del pedido.</li>
+					</ul>
+					<p>Autenticación:</p>
+					<ul>
+						<li><strong>Type:</strong> Bearer Token (JWT) </li>
+						<li><strong>Header:</strong> <code>Authorization: Bearer JWT_TOKEN</code></li>
+					</ul>
+					<p>Respuesta:</p>
+					<pre><code>{
+    "pedido": [
+        {
+            "rut": "2091305-3",
+            "id_pedido": 3,
+            "fecha_hora_pedido": "2024-07-07T21:33:49.000Z",
+            "estado": 0,
+            "total": 240000
+        }
+    ],
+    "detalle": [
+        {
+            "cantidad": 1,
+            "sub_total": 240000,
+            "nombre_producto": "Taladro percutor",
+            "nombre_sucursal": "Ferremax Santiago"
+        }
+    ]
+}</code></pre>
+				</li>
 			</ul>
 		</section>
 	</main>
