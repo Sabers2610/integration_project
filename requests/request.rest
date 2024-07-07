@@ -6,10 +6,9 @@ content-type: application/json
     "name": "Giovannig",
     "lastname": "Barra",
     "age": 21,
-    "direction": "Pasaje las palmeras",
+    "address": "Pasaje las palmeras",
     "email": "gio.barra@duocuc.cl",
-    "password": "12345678",
-    "esp": ""
+    "password": "Giovanni123**"
 }
 
 ###
@@ -18,13 +17,26 @@ POST http://localhost:3001/1.0/login/
 content-type: application/json
 
 {
-    "email": "lu.saezd@duocuc.cl",
+    "email": "lu.saezd@gmail.com",
     "password": "Luis2610**"
 }
 
 ###
 
 GET http://localhost:3003/1.0/productos/categorias/1
+
+###
+
+GET http://localhost:3003/1.0/productos/1/stock
+
+###
+
+GET http://localhost:3003/1.0/productos/1/usd
+
+###
+
+GET http://localhost:3003/1.0/preguntas/
+Authorization: Bearer "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXNzaW9uSUQiOiI0NTAwNTQ4NC1mMTk3LTRhNmYtYTI1Ni05ZmZiNGZjMzNhMWEiLCJ1c2VyIjp7ImVtYWlsIjoibHUuc2FlemRAZ21haWwuY29tIiwicnV0IjoiMjY4MzYyODItNyJ9LCJyb2xlIjoiQ2xpZW50ZSIsImFkbWluIjp0cnVlLCJleHAiOjE3MjAzOTQ2NDUsImlhdCI6MTcyMDM4MDI0NX0.4FkynxfBKS04hJ1fB7SGsO8cN-KaICFOncdrR71jGek"
 
 
 ###

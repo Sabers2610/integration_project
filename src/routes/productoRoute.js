@@ -11,10 +11,6 @@ router.route("/productos/categorias/:id")
 router.route("/productos/marca/:id")
 	.get(Producto.allBrand)
 
-router.route("/productos/:id")
-    .post(Producto.findOne)
-    .put(jwtvalidate, jwtAdminvalidate, Producto.modify)
-
 router.route("/productos/:id/stock")
 	.get(Producto.findStock)
 
@@ -29,7 +25,11 @@ router.route("/preguntas/respuesta/")
 	.post(jwtvalidate, jwtAdminvalidate, Producto.answer)
 
 router.route("/productos/especiales/")
-	.post(Producto.findEspecial)
+	.post(Producto.Especial)
+
+router.route("/productos/:id")
+	.post(Producto.findOne)
+	//.put(jwtvalidate, jwtAdminvalidate, Producto.modify)
 
 
 module.exports = router

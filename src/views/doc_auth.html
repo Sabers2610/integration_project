@@ -17,21 +17,74 @@
 			<h2>Endpoints</h2>
 			<ul>
 				<li>
-					<h3>GET /1.0/resource</h3>
-					<p>Descripcion de lo que hace</p>
-					<pre><code>curl -X GET https://localhost:3001/1.0/resource</code></pre>
-					<p>Parameters:</p>
-					<ul>
-						<li><code>param1</code>: Descripcion del param 1.</li>
-						<li><code>param2</code>: Descripcion del param 2.</li>
-					</ul>
-					<p>Response:</p>
-					<pre><code>{ "key": "value" }</code></pre>
+					<h3>POST /1.0/login/</h3>
+					<p>Iniciar sesion dentro del sistema</p>
+					<pre><code>curl -X POST https://localhost:3001/1.0/login</code></pre>
+				</li>
+				<p>Request Body:</p>
+				<pre><code>{
+	"email": "usuario@gmail.com",
+	"password": "Usuario123**"
+}
+</code></pre>
+				<p>Request Body Parameters:</p>
+				<ul>
+					<li><code>email</code>: <strong>Type</strong>: String. <strong>Requerido</strong>: Si.
+						<strong>Descripción</strong>: Email del usuario.</li>
+					<li><code>password</code>: <strong>Type</strong>: String. <strong>Requerido</strong>: Si.
+						<strong>Descripción</strong>: Password del usuario.</li>
+				</ul>
+				<p>Respuesta:</p>
+				<pre><code>{<br>    "JWT TOKEN"<br>}</code></pre>
 				</li>
 				<!-- Repetir para lo otros endpoints-->
+				<hr>
+				<li>
+					<h3>POST /1.0/register/</h3>
+					<p>Registrar usuario dentro del sistema</p>
+					<pre><code>curl -X POST https://localhost:3001/1.0/register</code></pre>
+				</li>
+				<p>Request Body:</p>
+				<pre><code>{
+"rut": "11111111-1",
+"name": "Raul",
+"lastname": "Fuentes",
+"age": 20,
+"address": "Calle #1, avenida #1",
+"email": "RaulFuentes@gmail.com",
+"password": "Raul123**",
+}
+</code></pre>
+				<p>Request Body Parameters:</p>
+				<ul>
+					<li><code>rut</code>: <strong>Type</strong>: String. <strong>Requerido</strong>: Si.
+						<strong>Descripción</strong>: Rut del usuario.</li>
+					<li><code>name</code>: <strong>Type</strong>: String. <strong>Requerido</strong>: Si.
+						<strong>Descripción</strong>: Nombre del usuario.</li>
+					<li><code>lastname</code>: <strong>Type</strong>: String. <strong>Requerido</strong>: Si.
+						<strong>Descripción</strong>: Apellido del usuario.</li>
+					<li><code>age</code>: <strong>Type</strong>: int. <strong>Requerido</strong>: Si.
+						<strong>Descripción</strong>: Edad del usuario.</li>
+					<li><code>address</code>: <strong>Type</strong>: String. <strong>Requerido</strong>: Si.
+						<strong>Descripción</strong>: Domicilio del usuario.</li>
+					<li><code>email</code>: <strong>Type</strong>: String. <strong>Requerido</strong>: Si.
+						<strong>Descripción</strong>: Email del usuario.</li>
+					<li><code>password</code>: <strong>Type</strong>: String. <strong>Requerido</strong>: Si.
+						<strong>Descripción</strong>: Contraseña del usuario.</li>
+				</ul>
+				<p>Respuesta:</p>
+				<pre><code>{
+"rut": "11111111-1",
+"name": "Raul Fuentes",
+"age": 20,
+"direction": "Calle #1, avenida #1",
+"email": "RaulFuentes@gmail.com",
+"especiality": "N/A",
+"employee": "Cliente"
+}</code></pre>
+				</li>
 			</ul>
 		</section>
 	</main>
 </body>
-
 </html>

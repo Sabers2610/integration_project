@@ -10,26 +10,363 @@
 
 <body>
 	<header>
-		<h1>Producto API</h1>
+		<h1>API Producto</h1>
 	</header>
 	<main>
 		<section>
 			<h2>Endpoints</h2>
 			<ul>
 				<li>
-					<h3>GET /1.0/resource</h3>
-					<p>Descripcion de lo que hace</p>
-					<pre><code>curl -X GET https://localhost:3003/1.0/resource</code></pre>
-					<p>Parameters:</p>
+					<h3>POST /1.0/productos/:id</h3>
+					<p>Buscar un producto especifico en una sucursal especifica</p>
+					<pre><code>curl -X POST -H "Authorization: Bearer JWT_TOKEN -d "id=1" https://localhost:3002/1.0/productos</code></pre>
+				</li>
+				<p>Parámetros:</p>
 					<ul>
-						<li><code>param1</code>: Descripcion del param 1.</li>
-						<li><code>param2</code>: Descripcion del param 2.</li>
+						<li><code>id</code>: Número identificador del producto.</li>
 					</ul>
-					<p>Response:</p>
-					<pre><code>{ "key": "value" }</code></pre>
+					<p>Autenticación:</p>
+					<ul>
+						<li><strong>Type:</strong> Bearer Token (JWT) </li>
+						<li><strong>Header:</strong> <code>Authorization: Bearer JWT_TOKEN</code></li>
+					</ul>
+					<p>Request Body:</p>
+					<pre><code>{
+	"id_sucursal": 1
+}</code></pre>
+					<p>Request Body Parameters:</p>
+					<ul>
+						<li><code>id_sucursal</code>: <strong>Type</strong>: int. <strong>Requerido</strong>: Si.
+							<strong>Descripción</strong>:Número identificador de la sucursal.</li>
+					</ul>
+				<p>Respuesta:</p>
+				<pre><code>{
+	"producto": {
+			"id_producto": "FER-1",
+			"nombre_producto": "Tornilladora stanley-15800",
+			"marca": "Stanley",
+			"modelo": "stanley-15800",
+			"estado": {
+			"id_estado": 3,
+			"nombre_estado": "Promocion"
+		},
+		"categoria": "N/A",
+		"precio": 210000,
+		"disponibilidad": "Disponible",
+		"descuento": "N/A",
+		"stock_sucursales": [
+			{
+				"stock": 22,
+				"id_sucursal": 1,
+				"nombre_sucursal": "Ferremax Santiago"
+			}
+		]
+	},
+	"historial_precio": [
+		{
+			"fecha": "07/07/2024",
+			"precio": 180000
+		}
+	]
+}</code></pre>
 				</li>
 				<!-- Repetir para lo otros endpoints-->
-			</ul>
+				<hr>
+				<li>
+					<h3>POST /1.0/productos/categorias/:id</h3>
+					<p>Buscar los productos asociados a una categoria especifica</p>
+					<pre><code>curl -X POST -H "Authorization: Bearer JWT_TOKEN -d "id=1" https://localhost:3002/1.0/productos/categorias</code></pre>
+				</li>
+				<p>Parámetros:</p>
+					<ul>
+						<li><code>id</code>: Número identificador de la categoria.</li>
+					</ul>
+					<p>Autenticación:</p>
+					<ul>
+						<li><strong>Type:</strong> Bearer Token (JWT) </li>
+						<li><strong>Header:</strong> <code>Authorization: Bearer JWT_TOKEN</code></li>
+					</ul>
+				<p>Respuesta:</p>
+				<pre><code>[
+	{
+		"id_producto": "FER-2",
+		"nombre_producto": "Taladro percutor bosch-16404",
+		"marca": "Bosch",
+		"modelo": "bosch-16404",
+		"estado": {
+		"id_estado": 2,
+		"nombre_estado": "Nuevo lanzamiento"
+	},
+		"categoria": "Construccion",
+		"precio": 240000,
+		"disponibilidad": "Disponible",
+		"descuento": "N/A",
+		"stock_sucursales": "N/A"
+	},
+	{
+		"id_producto": "FER-5",
+		"nombre_producto": "Nivel milimetrico incco-13000",
+		"marca": "Incco",
+		"modelo": "incco-13000",
+		"estado": {
+		"id_estado": 1,
+		"nombre_estado": "Producto"
+	},
+		"categoria": "Construccion",
+		"precio": 15000,
+		"disponibilidad": "Disponible",
+		"descuento": "N/A",
+		"stock_sucursales": "N/A"
+	},
+	{
+		"id_producto": "FER-6",
+		"nombre_producto": "Galletera dewalt-10000",
+		"marca": "Dewalt",
+		"modelo": "dewalt-10000",
+		"estado": {
+		"id_estado": 1,
+		"nombre_estado": "Producto"
+	},
+	"categoria": "Construccion",
+	"precio": 75000,
+	"disponibilidad": "Disponible",
+	"descuento": "N/A",
+	"stock_sucursales": "N/A"
+	}
+]</code></pre>
+				</li>
+				<!-- Repetir para lo otros endpoints-->
+				<hr>
+				<li>
+					<h3>GET /1.0/productos/marca/:id</h3>
+					<p>Buscar los productos asociados a una marca especifica</p>
+					<pre><code>curl -X GET -H "Authorization: Bearer JWT_TOKEN -d "id=1" https://localhost:3002/1.0/productos/marca</code></pre>
+				</li>
+				<p>Parámetros:</p>
+					<ul>
+						<li><code>id</code>: Número identificador de la marca.</li>
+					</ul>
+					<p>Autenticación:</p>
+					<ul>
+						<li><strong>Type:</strong> Bearer Token (JWT) </li>
+						<li><strong>Header:</strong> <code>Authorization: Bearer JWT_TOKEN</code></li>
+					</ul>
+				<p>Respuesta:</p>
+				<pre><code>[
+	{
+		"id_producto": "FER-2",
+		"nombre_producto": "Taladro percutor bosch-16404",
+		"marca": "N/A",
+		"modelo": "bosch-16404",
+		"estado": {
+		"id_estado": 2,
+		"nombre_estado": "Nuevo lanzamiento"
+	},
+	"categoria": "N/A",
+	"precio": 240000,
+	"disponibilidad": "Disponible",
+	"descuento": "N/A",
+	"stock_sucursales": "N/A"
+	}
+]</code></pre>
+				</li>
+				<!-- Repetir para lo otros endpoints-->
+				<hr>
+				<li>
+					<h3>GET /1.0/productos/:id/stock/</h3>
+					<p>Buscar el stock de un producto en las distintas sucursales</p>
+					<pre><code>curl -X GET -H "Authorization: Bearer JWT_TOKEN -d "id=1" https://localhost:3002/1.0/productos/:id/stock</code></pre>
+				</li>
+				<p>Parámetros:</p>
+					<ul>
+						<li><code>id</code>: Número identificador del producto.</li>
+					</ul>
+					<p>Autenticación:</p>
+					<ul>
+						<li><strong>Type:</strong> Bearer Token (JWT) </li>
+						<li><strong>Header:</strong> <code>Authorization: Bearer JWT_TOKEN</code></li>
+					</ul>
+				<p>Respuesta:</p>
+				<pre><code>{
+	"id_producto": "FER-1",
+	"nombre_producto": "Tornilladora stanley-15800",
+	"marca": "Stanley",
+	"modelo": "stanley-15800",
+	"estado": {
+		"id_estado": 3,
+		"nombre_estado": "Promocion"
+	},
+	"categoria": "N/A",
+	"precio": 210000,
+	"disponibilidad": "Disponible",
+	"descuento": "N/A",
+	"stock_sucursales": [
+		{
+		"stock": 22,
+		"id_sucursal": 1,
+		"nombre_sucursal": "Ferremax Santiago"
+		}
+	]
+}</code></pre>
+				</li>
+				<!-- Repetir para lo otros endpoints-->
+				<hr>
+				<li>
+					<h3>GET /1.0/productos/:id/usd/</h3>
+					<p>Cambiar el precio de un producto a dolares</p>
+					<pre><code>curl -X GET -H "Authorization: Bearer JWT_TOKEN -d "id=1" https://localhost:3002/1.0/productos/:id/usd</code></pre>
+				</li>
+				<p>Parámetros:</p>
+					<ul>
+						<li><code>id</code>: Número identificador del producto.</li>
+					</ul>
+					<p>Autenticación:</p>
+					<ul>
+						<li><strong>Type:</strong> Bearer Token (JWT) </li>
+						<li><strong>Header:</strong> <code>Authorization: Bearer JWT_TOKEN</code></li>
+					</ul>
+				<p>Respuesta:</p>
+				<pre><code>{
+	"precio_usd": 224.95741877430345
+}</code></pre>
+				</li>
+				<!-- Repetir para lo otros endpoints-->
+				<hr>
+				<li>
+					<h3>GET /1.0/preguntas/</h3>
+					<p>Lista todas las preguntas almacenadas en el sistema</p>
+					<pre><code>curl -X GET -H "Authorization: Bearer JWT_TOKEN https://localhost:3002/1.0/pregunta</code></pre>
+				</li>
+				<p>Respuesta:</p>
+				<pre><code>[
+	{
+		"id_pregunta": 6,
+		"rut_cliente": "20913053-K",
+		"rut_empleado": "26375627-4",
+		"id_categoria": 2,
+		"pregunta": "Pregunta de prueba",
+		"fecha": "2024-05-21T00:48:52.000Z",
+		"respuesta": null
+	},
+	{
+		"id_pregunta": 7,
+		"rut_cliente": "20913053-K",
+		"rut_empleado": "26836282-7",
+		"id_categoria": 1,
+		"pregunta": "Prueba de pregunt",
+		"fecha": "2024-05-21T01:25:15.000Z",
+		"respuesta": "Test de respuesta"
+	},
+	{
+		"id_pregunta": 8,
+		"rut_cliente": "26375627-4",
+		"rut_empleado": "26836282-7",
+		"id_categoria": 2,
+		"pregunta": "Prueba de pregunta whoknows",
+		"fecha": "2024-07-02T21:02:26.000Z",
+		"respuesta": "Test de respuesta"
+	}
+]</code></pre>
+				</li>
+				<!-- Repetir para lo otros endpoints-->
+				<hr>
+				<li>
+					<h3>POST /1.0/preguntas/</h3>
+					<p>Ingresa una pregunta al sistema</p>
+					<pre><code>curl -X POST -H "Authorization: Bearer JWT_TOKEN https://localhost:3002/1.0/preguntas</code></pre>
+				</li>
+				<p>Request Body:</p>
+					<pre><code>{
+	"id_categoria": 2,
+	"pregunta": "Prueba de pregunta whoknows"
+}</code></pre>
+					<p>Request Body Parameters:</p>
+					<ul>
+						<li><code>id_categoria</code>: <strong>Type</strong>: int. <strong>Requerido</strong>: Si.
+							<strong>Descripción</strong>:Número identificador de la categoria.</li>
+						<li><code>pregunta</code>: <strong>Type</strong>: String. <strong>Requerido</strong>: Si.
+							<strong>Descripción</strong>:Pregunta a realizar.</li>
+					</ul>
+				<p>Respuesta:</p>
+				<pre><code>{
+	"message": "Pregunta realizada con éxito."
+}</code></pre>
+				</li>
+				<!-- Repetir para lo otros endpoints-->
+				<hr>
+				<li>
+					<h3>POST /1.0/preguntas/respuesta/</h3>
+					<p>Ingresa una respuesta a una pregunta especifica</p>
+					<pre><code>curl -X POST -H "Authorization: Bearer JWT_TOKEN https://localhost:3002/1.0/preguntas/respuestas/</code></pre>
+				</li>
+				<p>Request Body:</p>
+					<pre><code>{
+	"id-pregunta": 2,
+	"respuesta": "respuesta de pregunta whoknows"
+}</code></pre>
+					<p>Request Body Parameters:</p>
+					<ul>
+						<li><code>id_pregunta</code>: <strong>Type</strong>: int. <strong>Requerido</strong>: Si.
+							<strong>Descripción</strong>:Número identificador de la pregunta.</li>
+						<li><code>respuesta</code>: <strong>Type</strong>: String. <strong>Requerido</strong>: Si.
+							<strong>Descripción</strong>:Respuesta a la pregunta.</li>
+					</ul>
+				<p>Respuesta:</p>
+				<pre><code>{
+	"message": "Respuesta registrada"
+}</code></pre>
+				</li>
+				<!-- Repetir para lo otros endpoints-->
+				<hr>
+				<li>
+					<h3>GET /1.0/productos/especiales/</h3>
+					<p>Lista los productos en nuevos lanzamientos y promociones</p>
+					<pre><code>curl -X POST https://localhost:3002/1.0/productos/especiales</code></pre>
+				</li>
+				<p>Request Body:</p>
+					<pre><code>{
+	"id_estado"
+}</code></pre>
+					<p>Request Body Parameters:</p>
+					<ul>
+						<li><code>id_estado</code>: <strong>Type</strong>: int. <strong>Requerido</strong>: Si.
+							<strong>Descripción</strong>:Número identificador del estado.</li>
+					</ul>
+				<p>Respuesta:</p>
+				<pre><code>[
+	{
+		"id_producto": "FER-1",
+		"nombre_producto": "Tornilladora stanley-15800",
+		"marca": "Stanley",
+		"modelo": "stanley-15800",
+		"estado": {
+		"id_estado": 3,
+		"nombre_estado": "Promocion"
+	},
+		"categoria": "N/A",
+		"precio": 210000,
+		"disponibilidad": "Disponible",
+		"descuento": "N/A",
+		"stock_sucursales": "N/A"
+	},
+	{
+		"id_producto": "FER-4",
+		"nombre_producto": "Sierra Circular blackdecker-2000",
+		"marca": "Black Decker",
+		"modelo": "blackdecker-2000",
+		"estado": {
+		"id_estado": 3,
+		"nombre_estado": "Promocion"
+	},
+		"categoria": "N/A",
+		"precio": 360000,
+		"disponibilidad": "Disponible",
+		"descuento": 28,
+		"stock_sucursales": "N/A"
+	}
+]</code></pre>
+				</li>
+				<!-- Repetir para lo otros endpoints-->
 		</section>
 	</main>
 </body>

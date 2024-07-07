@@ -466,8 +466,10 @@ Producto.listQuestions = async (request, response) => {
     }
 }
 
-Producto.findEspecial = async(request, response)=>{
+Producto.Especial = async(request, response)=>{
+    console.log("ENTRE x1")
     const { id_estado } = request.body
+    console.log("Entre al metodo")
     const productos = []
     var connection = null
     try {
@@ -482,7 +484,7 @@ Producto.findEspecial = async(request, response)=>{
                         e.id_estado,
                         e.nombre_estado,
                         m.nombre_modelo,
-                        m2.nombre_marca,
+                        m2.nombre_marca
                     FROM tipo_producto as tp
                     JOIN producto as p ON (p.id_tipo_producto = tp.id_tipo_producto)
                     JOIN modelo as m ON (p.id_modelo = m.id_modelo)
@@ -495,6 +497,7 @@ Producto.findEspecial = async(request, response)=>{
             throw new SQLError(`No hay productos asociados a ${estado === 2 ? "nuevo lanzamiento" : "promocion"}`, "API_SQL_ERROR")
         }
         for(const pro of rows){
+            console.log("Entre al for")
             var categoria = pro.nombre_categoria ? new Categoria(pro.id_categoria, pro.nombre_categoria) : null
             var estado = new Estado(id_estado, pro.nombre_estado)
             var marca = new Marca(pro.id_marca, pro.nombre_marca)
@@ -505,6 +508,7 @@ Producto.findEspecial = async(request, response)=>{
                 pro.descuento
             )
             productos.push(producto.toJson())
+            console.log("Pase el for")
         }
         return response.status(200).json(productos)
     } catch (error) {
